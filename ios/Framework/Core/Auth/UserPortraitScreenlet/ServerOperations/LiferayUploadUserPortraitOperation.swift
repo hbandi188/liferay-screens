@@ -47,15 +47,15 @@ public class LiferayUploadUserPortraitOperation: ServerOperation {
 		return error
 	}
 
-	override public func doRun(session session: LRSession) {
-		if let imageBytes = reduceImage(self.image!, factor: 0.95) {
+    override public func doRun(session: LRSession) {
+        if let imageBytes = reduceImage(src: self.image!, factor: 0.95) {
 			self.image = nil
 			uploadBytes(imageBytes, withSession: session)
 		}
 		else {
 			fileTooLarge = true
 			uploadResult = nil
-			lastError = NSError.errorWithCause(.AbortedDueToPreconditions)
+            lastError = NSError.errorWithCause(cause: .AbortedDueToPreconditions)
 		}
 	}
 
@@ -67,9 +67,9 @@ public class LiferayUploadUserPortraitOperation: ServerOperation {
 			return nil
 		}
 
-		if let imageBytes = UIImageJPEGRepresentation(src, CGFloat(factor)) {
+        if let imageBytes = src.jpegData(compressionQuality: CGFloat(factor)) {
 			return (imageBytes.length < maxSize)
-				? imageBytes
+                ? imageBytes as NSData
 				: reduceImage(src, factor: factor - 0.05)
 		}
 
@@ -88,7 +88,7 @@ public class LiferayUploadUserPortraitOperation: ServerOperation {
 				lastError = nil
 			}
 			else {
-				lastError = NSError.errorWithCause(.InvalidServerResponse)
+                lastError = NSError.errorWithCause(cause: .InvalidServerResponse)
 			}
 		}
 		catch let error as NSError {

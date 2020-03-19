@@ -23,36 +23,36 @@ public class DDLFieldCheckboxTableCell_default: DDLFieldTableCell {
 	//MARK: Actions
 
 	@IBAction private func switchValueChanged(sender: AnyObject) {
-		field?.currentValue = switchView?.on
+        field?.currentValue = switchView?.isOn as AnyObject?
 
 		if field!.lastValidationResult != nil && !field!.lastValidationResult! {
 			field!.lastValidationResult = true
-			onPostValidation(true)
+            onPostValidation(valid: true)
 		}
 	}
 
 
 	//MARK: DDLFieldTableCell
 
-	override public func canBecomeFirstResponder() -> Bool {
+    override public var canBecomeFirstResponder: Bool {
 		return false
 	}
 
 	override public func onChangedField() {
 		if let boolField = field as? DDLFieldBoolean {
-			switchView?.on = boolField.currentValue as! Bool
+            switchView?.isOn = boolField.currentValue as! Bool
 			label?.text = boolField.label
 
 			if boolField.lastValidationResult != nil {
-				onPostValidation(boolField.lastValidationResult!)
+                onPostValidation(valid: boolField.lastValidationResult!)
 			}
 		}
 	}
 
 	override public func onPostValidation(valid: Bool) {
-		super.onPostValidation(valid)
+        super.onPostValidation(valid: valid)
 
-		label?.textColor = valid ? UIColor.blackColor() : UIColor.redColor()
+        label?.textColor = valid ? UIColor.black : UIColor.red
 	}
 
 }

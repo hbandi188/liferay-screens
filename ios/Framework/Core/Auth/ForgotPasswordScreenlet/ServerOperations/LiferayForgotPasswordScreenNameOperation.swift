@@ -19,10 +19,10 @@ public class LiferayForgotPasswordScreenNameOperation: LiferayForgotPasswordBase
 	//MARK: LiferayForgotPasswordBaseOperation
 
 	override public func sendForgotPasswordRequest(
-			service service: LRScreensuserService_v62)
+        service: LRScreensuserService_v62)
 			throws -> Bool? {
 
-		try service.sendPasswordByScreenNameWithCompanyId(companyId,
+                try service.sendPasswordByScreenName(withCompanyId: companyId,
 			screenName: viewModel.userName!)
 
 		return true

@@ -22,7 +22,7 @@ public class DDLFieldTextareaTableCell_default: DDLFieldTableCell, UITextViewDel
 	@IBOutlet public var label: UILabel?
 	@IBOutlet public var separator: UIView?
 
-	private var originalTextViewRect = CGRectZero
+    private var originalTextViewRect = CGRect.zero
 	private var originalBackgroundRect: CGRect?
 	private var originalSeparatorY: CGFloat?
 	private var originalSeparatorDistance: CGFloat?
@@ -30,8 +30,8 @@ public class DDLFieldTextareaTableCell_default: DDLFieldTableCell, UITextViewDel
 
 	//MARK: DDLFieldTableCell
 
-	override public func canBecomeFirstResponder() -> Bool {
-		return textView!.canBecomeFirstResponder()
+    override public var canBecomeFirstResponder: Bool {
+        return textView?.canBecomeFirstResponder ?? false
 	}
 
 	override public func becomeFirstResponder() -> Bool {
@@ -52,9 +52,9 @@ public class DDLFieldTextareaTableCell_default: DDLFieldTableCell, UITextViewDel
 
 				if let labelValue = label {
 					labelValue.text = stringField.label
-					labelValue.hidden = false
+                    labelValue.isHidden = false
 
-					moveSubviewsVertically(0.0)
+                    moveSubviewsVertically(offsetY: 0.0)
 				}
 			}
 			else {
@@ -62,18 +62,18 @@ public class DDLFieldTextareaTableCell_default: DDLFieldTableCell, UITextViewDel
 				placeholder?.alpha = (textView?.text == "") ? 1.0 : 0.0
 
 				if let labelValue = label {
-					labelValue.hidden = true
+                    labelValue.isHidden = true
 
 					moveSubviewsVertically(
-						-(DDLFieldTextFieldHeightWithLabel - DDLFieldTextFieldHeightWithoutLabel))
+                        offsetY: -(DDLFieldTextFieldHeightWithLabel - DDLFieldTextFieldHeightWithoutLabel))
 
-					setCellHeight(DDLFieldTextFieldHeightWithoutLabel)
+                    setCellHeight(height: DDLFieldTextFieldHeightWithoutLabel)
 
 					currentHeight = DDLFieldTextFieldHeightWithoutLabel
 				}
 			}
 
-			textView?.returnKeyType = isLastCell ? .Send : .Next
+            textView?.returnKeyType = isLastCell ? .send : .next
 
 			originalTextViewRect = textView!.frame
 			originalBackgroundRect = textViewBackground?.frame
@@ -83,51 +83,51 @@ public class DDLFieldTextareaTableCell_default: DDLFieldTableCell, UITextViewDel
 			}
 
 			if stringField.lastValidationResult != nil {
-				onPostValidation(stringField.lastValidationResult!)
+                onPostValidation(valid: stringField.lastValidationResult!)
 			}
 		}
 	}
 
 	override public func onPostValidation(valid: Bool) {
-		super.onPostValidation(valid)
+        super.onPostValidation(valid: valid)
 
-		textViewBackground?.image = NSBundle.imageInBundles(
+        textViewBackground?.image = Bundle.imageInBundles(
 					name: valid ? "default-field" : "default-field-failed",
-					currentClass: self.dynamicType)
+                    currentClass: type(of: self))
 	}
 
 
 	//MARK: UITextViewDelegate
 
-	public func textViewShouldBeginEditing(textView: UITextView) -> Bool {
+    public func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
 		let heightLabelOffset:CGFloat =
 				DDLFieldTextFieldHeightWithLabel - DDLFieldTextFieldHeightWithoutLabel
 
 		let newCellHeight = DDLFieldTextareaExpandedCellHeight +
 				(field!.showLabel ? heightLabelOffset : 0.0)
 
-		setCellHeight(newCellHeight)
+        setCellHeight(height: newCellHeight)
 
 		if let value = originalSeparatorDistance {
 			separator?.frame.origin.y = newCellHeight - value
 		}
 
-		textView.frame = CGRectMake(
-			originalTextViewRect.origin.x,
-			originalTextViewRect.origin.y,
-			originalTextViewRect.size.width,
-			DDLFieldTextareaExpandedTextViewHeight)
+		textView.frame = CGRect(
+            x: originalTextViewRect.origin.x,
+            y: originalTextViewRect.origin.y,
+            width: originalTextViewRect.size.width,
+            height: DDLFieldTextareaExpandedTextViewHeight)
 
 		textViewBackground?.frame.size.height = DDLFieldTextareaExpandedBackgroundHeight
 
-		textViewBackground?.highlighted = true
+        textViewBackground?.isHighlighted = true
 
 		formView!.firstCellResponder = textView
 
 		return true
 	}
 
-	public func textViewDidEndEditing(textView: UITextView) {
+    public func textViewDidEndEditing(_ textView: UITextView) {
 		if let originalSeparatorY = originalSeparatorY {
 			separator?.frame.origin.y = originalSeparatorY
 		}
@@ -144,35 +144,35 @@ public class DDLFieldTextareaTableCell_default: DDLFieldTableCell, UITextViewDel
 		let height = resetCellHeight()
 
 		if !field!.showLabel {
-			setCellHeight(height - heightLabelOffset)
+            setCellHeight(height: height - heightLabelOffset)
 		}
 
-		textViewBackground?.highlighted = false
+        textViewBackground?.isHighlighted = false
 	}
 
-	public func textView(textView: UITextView,
-			shouldChangeTextInRange range: NSRange,
+    public func textView(_ textView: UITextView,
+                         shouldChangeTextIn range: NSRange,
 			replacementText text: String) -> Bool {
 
 		var result = false
 
 		if text == "\n" {
-			textViewDidEndEditing(textView)
-			nextCellResponder(textView)
+            textViewDidEndEditing(textView)
+            nextCellResponder(currentView: textView)
 			result = false
 		} else {
 			result = true
 
-			let newText = (textView.text as NSString).stringByReplacingCharactersInRange(range,
-					withString:text)
+            let newText = (textView.text as NSString).replacingCharacters(in: range,
+                                                                          with:text)
 
 			placeholder!.changeVisibility(visible: newText != "")
 
-			field?.currentValue = newText
+            field?.currentValue = newText as AnyObject
 
 			if field!.lastValidationResult != nil && !field!.lastValidationResult! {
 				field!.lastValidationResult = true
-				onPostValidation(true)
+                onPostValidation(valid: true)
 			}
 		}
 

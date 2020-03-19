@@ -16,13 +16,13 @@ import UIKit
 
 @objc public protocol AssetListScreenletDelegate : BaseScreenletDelegate {
 
-	optional func screenlet(screenlet: AssetListScreenlet,
+    @objc optional func screenlet(screenlet: AssetListScreenlet,
 			onAssetListResponseEntries entries: [AssetListScreenletEntry])
 
-	optional func screenlet(screenlet: AssetListScreenlet,
+    @objc optional func screenlet(screenlet: AssetListScreenlet,
 			onAssetListError error: NSError)
 
-	optional func screenlet(screenlet: AssetListScreenlet,
+    @objc optional func screenlet(screenlet: AssetListScreenlet,
 			onAssetSelectedEntry entry: AssetListScreenletEntry)
 
 }
@@ -41,23 +41,23 @@ import UIKit
 	}
 
 	public var classNameId: Int64 {
-		return (attributes["classNameId"] as! NSNumber).longLongValue
+        return (attributes["classNameId"] as! NSNumber).int64Value
 	}
 
 	public var classPK: Int64 {
-		return (attributes["classPK"] as! NSNumber).longLongValue
+        return (attributes["classPK"] as! NSNumber).int64Value
 	}
 
 	public var groupId: Int64 {
-		return (attributes["groupId"] as! NSNumber).longLongValue
+        return (attributes["groupId"] as! NSNumber).int64Value
 	}
 
 	public var companyId: Int64 {
-		return (attributes["companyId"] as! NSNumber).longLongValue
+        return (attributes["companyId"] as! NSNumber).int64Value
 	}
 
 	public var entryId: Int64 {
-		return (attributes["entryId"] as! NSNumber).longLongValue
+        return (attributes["entryId"] as! NSNumber).int64Value
 	}
 
 	//MARK: Init
@@ -87,7 +87,7 @@ import UIKit
 	//MARK: BaseListScreenlet
 
 	override public func createPageLoadInteractor(
-			page page: Int,
+        page: Int,
 			computeRowCount: Bool)
 			-> BaseListPageLoadInteractor {
 
@@ -105,22 +105,22 @@ import UIKit
 		return interactor
 	}
 
-	override public func onLoadPageError(page page: Int, error: NSError) {
+    override public func onLoadPageError(page: Int, error: NSError) {
 		super.onLoadPageError(page: page, error: error)
 
-		assetListDelegate?.screenlet?(self, onAssetListError: error)
+        assetListDelegate?.screenlet?(screenlet: self, onAssetListError: error)
 	}
 
-	override public func onLoadPageResult(page page: Int, rows: [AnyObject], rowCount: Int) {
+    override public func onLoadPageResult(page: Int, rows: [AnyObject], rowCount: Int) {
 		super.onLoadPageResult(page: page, rows: rows, rowCount: rowCount)
 
 		let assetEntries = rows as! [AssetListScreenletEntry]
 
-		assetListDelegate?.screenlet?(self, onAssetListResponseEntries: assetEntries)
+        assetListDelegate?.screenlet?(screenlet: self, onAssetListResponseEntries: assetEntries)
 	}
 
 	override public func onSelectedRow(row: AnyObject) {
-		assetListDelegate?.screenlet?(self, onAssetSelectedEntry: row as! AssetListScreenletEntry)
+        assetListDelegate?.screenlet?(screenlet: self, onAssetSelectedEntry: row as! AssetListScreenletEntry)
 	}
 
 }

@@ -117,7 +117,7 @@ public class DDLFormTableView: DDLFormView,
 
 	//MARK: KeyboardLayoutable
 
-	public func layoutWhenKeyboardShown(var keyboardHeight: CGFloat,
+	public func layoutWhenKeyboardShown(keyboardHeight: CGFloat,
 			animation:(time: NSNumber, curve: NSNumber)) {
 
 		let cell = DDLFieldTableCell.viewAsFieldCell(firstCellResponder as? UIView)
@@ -255,7 +255,7 @@ public class DDLFormTableView: DDLFormView,
 	//MARK: Internal methods
 
 	internal func registerFieldCells() {
-		let bundles = NSBundle.allBundles(self.dynamicType);
+		let bundles = NSBundle.allBundles(type(of: self));
 
 		for fieldEditor in DDLField.Editor.all() {
 			for bundle in bundles {
@@ -285,7 +285,7 @@ public class DDLFormTableView: DDLFormView,
 	}
 
 	internal func registerCustomEditor(field: DDLField) -> Bool {
-		let bundles = NSBundle.allBundles(self.dynamicType);
+		let bundles = NSBundle.allBundles(type(of: self));
 
 		for bundle in bundles {
 			if let cellView = registerEditorCellInBundle(bundle,

@@ -28,7 +28,7 @@ public class BaseScreenletView: UIView, UITextFieldDelegate {
 
 	public var editable: Bool = true {
 		didSet {
-			changeEditable(editable, fromView:self)
+            changeEditable(editable: editable, fromView:self)
 		}
 	}
 
@@ -46,7 +46,7 @@ public class BaseScreenletView: UIView, UITextFieldDelegate {
 
 	override public func awakeFromNib() {
 		onPreCreate()
-		setUpView(self)
+        setUpView(view: self)
 		onSetTranslations()
 		onCreated()
 	}
@@ -77,24 +77,24 @@ public class BaseScreenletView: UIView, UITextFieldDelegate {
 	//MARK: UITextFieldDelegate
 
 	public func textFieldShouldReturn(textField: UITextField) -> Bool {
-		let nextResponder = nextResponderForView(textField)
+        let nextResponder = nextResponderForView(view: textField)
 
 		if nextResponder != textField {
 
 			switch textField.returnKeyType {
-				case .Next
+                case .next
 				where nextResponder is UITextInputTraits:
-					if textField.canResignFirstResponder() {
+                    if textField.canResignFirstResponder {
 						textField.resignFirstResponder()
 
-						if nextResponder.canBecomeFirstResponder() {
+                        if nextResponder.canBecomeFirstResponder {
 							nextResponder.becomeFirstResponder()
 						}
 					}
 
 				case _
 				where nextResponder is UIControl:
-					userActionWithSender(nextResponder)
+                    userActionWithSender(sender: nextResponder)
 
 				default: ()
 			}
@@ -156,7 +156,7 @@ public class BaseScreenletView: UIView, UITextFieldDelegate {
 	 * onPreAction is invoked just before any user action is invoked.
 	 * Override this method to decide whether or not the user action should be fired.
 	 */
-	public func onPreAction(name name: String, sender: AnyObject?) -> Bool {
+    public func onPreAction(name: String, sender: AnyObject?) -> Bool {
 		return true
 	}
 
@@ -200,11 +200,11 @@ public class BaseScreenletView: UIView, UITextFieldDelegate {
 		}
 	}
 
-	public func userAction(name name: String?) {
+    public func userAction(name: String?) {
 		userAction(name: name, sender: nil)
 	}
 	
-	public func userAction(name name: String?, sender: AnyObject?) {
+    public func userAction(name: String?, sender: AnyObject?) {
 		let actionName = name ?? BaseScreenlet.DefaultAction
 
 		if onPreAction(name: actionName, sender: sender) {
@@ -229,21 +229,18 @@ public class BaseScreenletView: UIView, UITextFieldDelegate {
 	private func addUserActionForControl(control: UIControl) {
 		let hasIdentifier = (control.restorationIdentifier != nil)
 
-		let userDefinedActions = control.actionsForTarget(self,
-			forControlEvent: .TouchUpInside)
+        let userDefinedActions = control.actions(forTarget: self, forControlEvent: .touchUpInside)
 		let hasUserDefinedActions = (userDefinedActions?.count ?? 0) > 0
 
 		if hasIdentifier && !hasUserDefinedActions
-				&& onSetUserActionForControl(control) {
-			control.addTarget(self,
-					action: "userActionWithSender:",
-					forControlEvents: .TouchUpInside)
+            && onSetUserActionForControl(control: control) {
+            control.addTarget(self, action: Selector("userActionWithSender:"), for: .touchUpInside)
 		}
 	}
 
 	private func addDefaultDelegatesForView(view:UIView) {
 		if let textField = view as? UITextField {
-			if onSetDefaultDelegate(self, view:textField) {
+            if onSetDefaultDelegate(delegate: self, view:textField) {
 				textField.delegate = self
 			}
 		}
@@ -251,20 +248,20 @@ public class BaseScreenletView: UIView, UITextFieldDelegate {
 
 	private func setUpView(view: UIView) {
 		if let control = view as? UIControl {
-			addUserActionForControl(control)
+            addUserActionForControl(control: control)
 		}
 
-		addDefaultDelegatesForView(view)
+        addDefaultDelegatesForView(view: view)
 
 		for subview:UIView in view.subviews {
-			setUpView(subview)
+            setUpView(view: subview)
 		}
 	}
 
 	private func changeEditable(editable: Bool, fromView view: UIView) {
-		view.userInteractionEnabled = editable
+        view.isUserInteractionEnabled = editable
 		for v in view.subviews {
-			changeEditable(editable, fromView: v)
+            changeEditable(editable: editable, fromView: v)
 		}
 	}
 

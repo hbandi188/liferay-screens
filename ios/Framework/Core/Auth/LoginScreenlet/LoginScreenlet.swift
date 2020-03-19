@@ -16,14 +16,14 @@ import UIKit
 
 @objc public protocol LoginScreenletDelegate : BaseScreenletDelegate {
 
-	optional func screenlet(screenlet: BaseScreenlet,
+    @objc optional func screenlet(screenlet: BaseScreenlet,
 			onLoginResponseUserAttributes attributes: [String:AnyObject])
 
-	optional func screenlet(screenlet: BaseScreenlet,
+    @objc optional func screenlet(screenlet: BaseScreenlet,
 			onLoginError error: NSError)
 
-	optional func onScreenletCredentialsSaved(screenlet: BaseScreenlet)
-	optional func onScreenletCredentialsLoaded(screenlet: BaseScreenlet)
+    @objc optional func onScreenletCredentialsSaved(screenlet: BaseScreenlet)
+    @objc optional func onScreenletCredentialsLoaded(screenlet: BaseScreenlet)
 
 }
 
@@ -73,7 +73,7 @@ public class LoginScreenlet: BaseScreenlet, BasicAuthBasedType {
 			// User can recreate it again in the delegate method.
 			SessionContext.logout()
 
-			loginDelegate?.onScreenletCredentialsLoaded?(self)
+            loginDelegate?.onScreenletCredentialsLoaded?(screenlet: self)
 
 			return true
 		}
@@ -93,7 +93,7 @@ public class LoginScreenlet: BaseScreenlet, BasicAuthBasedType {
 
 	}
 
-	override public func createInteractor(name name: String, sender: AnyObject?) -> Interactor? {
+    override public func createInteractor(name: String, sender: AnyObject?) -> Interactor? {
 
 		switch name {
 		case "login-action":
@@ -109,18 +109,18 @@ public class LoginScreenlet: BaseScreenlet, BasicAuthBasedType {
 		let interactor = LoginInteractor(screenlet: self)
 
 		interactor.onSuccess = {
-			self.loginDelegate?.screenlet?(self,
+            self.loginDelegate?.screenlet?(screenlet: self,
 					onLoginResponseUserAttributes: interactor.resultUserAttributes!)
 
 			if self.saveCredentials {
 				if SessionContext.storeCredentials() {
-					self.loginDelegate?.onScreenletCredentialsSaved?(self)
+                    self.loginDelegate?.onScreenletCredentialsSaved?(screenlet: self)
 				}
 			}
 		}
 
 		interactor.onFailure = {
-			self.loginDelegate?.screenlet?(self, onLoginError: $0)
+            self.loginDelegate?.screenlet?(screenlet: self, onLoginError: $0)
 		}
 
 		return interactor
@@ -133,18 +133,18 @@ public class LoginScreenlet: BaseScreenlet, BasicAuthBasedType {
 				consumerSecret: OAuthConsumerSecret)
 
 		interactor.onSuccess = {
-			self.loginDelegate?.screenlet?(self,
+            self.loginDelegate?.screenlet?(screenlet: self,
 					onLoginResponseUserAttributes: interactor.resultUserAttributes!)
 
 			if self.saveCredentials {
 				if SessionContext.storeCredentials() {
-					self.loginDelegate?.onScreenletCredentialsSaved?(self)
+                    self.loginDelegate?.onScreenletCredentialsSaved?(screenlet: self)
 				}
 			}
 		}
 
 		interactor.onFailure = {
-			self.loginDelegate?.screenlet?(self, onLoginError: $0)
+            self.loginDelegate?.screenlet?(screenlet: self, onLoginError: $0)
 			return
 		}
 

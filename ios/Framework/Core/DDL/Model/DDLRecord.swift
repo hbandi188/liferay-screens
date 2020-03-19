@@ -29,7 +29,7 @@ public class DDLRecord: NSObject, NSCoding {
 		}
 		set {
 			if let newValue = newValue {
-				attributes["recordId"] = NSNumber(longLong: newValue)
+                attributes["recordId"] = NSNumber(value: newValue)
 			}
 			else {
 				attributes.removeValueForKey("recordId")
@@ -51,7 +51,7 @@ public class DDLRecord: NSObject, NSCoding {
 				// This way we workaround the problem but a field can't be
 				// emptied when you're editing an existing row.
 				if value != "" {
-					result[field.name] = value
+                    result[field.name] = value as AnyObject
 				}
 			}
 		}
@@ -65,7 +65,7 @@ public class DDLRecord: NSObject, NSCoding {
 	public init(xsd: String, locale: NSLocale) {
 		super.init()
 
-		if let parsedFields = DDLXSDParser().parse(xsd, locale: locale) {
+        if let parsedFields = DDLXSDParser().parse(xsd: xsd, locale: locale) {
 		 	if !parsedFields.isEmpty {
 				fields = parsedFields
 			}
@@ -75,7 +75,7 @@ public class DDLRecord: NSObject, NSCoding {
 	public init(data: [String:AnyObject], attributes: [String:AnyObject]) {
 		super.init()
 
-		let parsedFields = DDLValuesParser().parse(data)
+        let parsedFields = DDLValuesParser().parse(values: data)
 		if !parsedFields.isEmpty {
 			fields = parsedFields
 		}
@@ -88,7 +88,7 @@ public class DDLRecord: NSObject, NSCoding {
 		super.init()
 
 		if let recordFields = (dataAndAttributes["modelValues"] ?? nil) as? [String:AnyObject] {
-			let parsedFields = DDLValuesParser().parse(recordFields)
+            let parsedFields = DDLValuesParser().parse(values: recordFields)
 		 	if !parsedFields.isEmpty {
 				fields = parsedFields
 			}
@@ -100,22 +100,22 @@ public class DDLRecord: NSObject, NSCoding {
 	}
 
 	public required init?(coder aDecoder: NSCoder) {
-		fields = aDecoder.decodeObjectForKey("fields") as! [DDLField]
+        fields = aDecoder.decodeObject(forKey: "fields") as! [DDLField]
 		attributes = aDecoder.decodeObjectForKey("attributes") as! [String:AnyObject]
 
 		super.init()
 	}
 
 	public func encodeWithCoder(aCoder: NSCoder) {
-		aCoder.encodeObject(fields, forKey:"fields")
-		aCoder.encodeObject(attributes, forKey:"attributes")
+        aCoder.encode(fields, forKey:"fields")
+        aCoder.encode(attributes, forKey:"attributes")
 	}
 
 
 
 	//MARK: Public methods
 
-	public func fieldBy(name name: String) -> DDLField? {
+    public func fieldBy(name: String) -> DDLField? {
 		for field in fields {
 			if field.name.lowercaseString == name.lowercaseString {
 				return field
@@ -125,12 +125,12 @@ public class DDLRecord: NSObject, NSCoding {
 		return nil
 	}
 
-	public func fieldsBy(type type: AnyClass) -> [DDLField] {
+    public func fieldsBy(type: AnyClass) -> [DDLField] {
 		var result = [DDLField]()
 		let typeName = NSStringFromClass(type)
 
 		for field in fields {
-			if NSStringFromClass(field.dynamicType) == typeName {
+            if NSStringFromClass(type(of: field)) == typeName {
 				result.append(field)
 			}
 		}

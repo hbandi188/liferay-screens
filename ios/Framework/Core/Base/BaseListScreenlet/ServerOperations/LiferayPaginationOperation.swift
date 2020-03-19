@@ -35,8 +35,11 @@ public class LiferayPaginationOperation: ServerOperation {
 
 	//MARK: ServerOperation
 
-	override public func doRun(session session: LRSession) {
-		let batchSession = LRBatchSession(session: session)
+    override public func doRun(session: LRSession) {
+        guard let batchSession = LRBatchSession(session: session) else {
+            lastError = NSError.errorWithCause(cause: .AbortedDueToPreconditions, userInfo: nil)
+            return
+        }
 
 		resultPageContent = nil
 		resultRowCount = nil
@@ -44,8 +47,8 @@ public class LiferayPaginationOperation: ServerOperation {
 
 		doGetPageRowsOperation(session: batchSession, startRow: startRow, endRow: endRow)
 
-		if batchSession.commands.count < 1 {
-			lastError = NSError.errorWithCause(.AbortedDueToPreconditions, userInfo: nil)
+        if batchSession.commands.count < 1 {
+            lastError = NSError.errorWithCause(cause: .AbortedDueToPreconditions, userInfo: nil)
 			return
 		}
 
@@ -62,7 +65,7 @@ public class LiferayPaginationOperation: ServerOperation {
 
 				if responses.count > 1 {
 					if let countResponse = responses[1] as? NSNumber {
-						serverRowCount = countResponse.integerValue
+                        serverRowCount = countResponse.intValue
 					}
 				}
 
@@ -70,7 +73,7 @@ public class LiferayPaginationOperation: ServerOperation {
 				resultRowCount = serverRowCount
 			}
 			else {
-				lastError = NSError.errorWithCause(.InvalidServerResponse)
+                lastError = NSError.errorWithCause(cause: .InvalidServerResponse)
 			}
 		}
 		catch let error as NSError {
@@ -78,11 +81,11 @@ public class LiferayPaginationOperation: ServerOperation {
 		}
 	}
 
-	public func doGetPageRowsOperation(session session: LRBatchSession, startRow: Int, endRow: Int) {
+    public func doGetPageRowsOperation(session: LRBatchSession, startRow: Int, endRow: Int) {
 		fatalError("doGetPageRowsOperation must be overriden")
 	}
 
-	public func doGetRowCountOperation(session session: LRBatchSession) {
+    public func doGetRowCountOperation(session: LRBatchSession) {
 		fatalError("doGetRowCountOperation must be overriden")
 	}
 

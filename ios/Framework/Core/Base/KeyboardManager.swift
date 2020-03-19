@@ -61,26 +61,26 @@ public class KeyboardManager {
 	public func registerObserver(layoutable: KeyboardLayoutable) {
 		self.layoutable = layoutable
 
-		NSNotificationCenter.defaultCenter().addObserver(self,
-				selector: "keyboardShown:",
-				name: UIKeyboardWillShowNotification,
+        NotificationCenter.default.addObserver(self,
+                                                     selector: Selector("keyboardShown:"),
+                                                     name: UIResponder.keyboardWillShowNotification,
 				object: nil)
 
-		NSNotificationCenter.defaultCenter().addObserver(self,
-				selector: "keyboardHidden:",
-				name: UIKeyboardWillHideNotification,
+        NotificationCenter.default.addObserver(self,
+                                               selector: Selector("keyboardHidden:"),
+                name: UIResponder.keyboardWillHideNotification,
 				object: nil)
 	}
 
 	public func unregisterObserver() {
 		self.layoutable = nil
 
-		NSNotificationCenter.defaultCenter().removeObserver(self,
-				name: UIKeyboardDidShowNotification,
+        NotificationCenter.default.removeObserver(self,
+                                                  name: UIResponder.keyboardDidShowNotification,
 				object: nil)
 
-		NSNotificationCenter.defaultCenter().removeObserver(self,
-				name: UIKeyboardDidHideNotification,
+        NotificationCenter.default.removeObserver(self,
+                                                        name: UIResponder.keyboardDidHideNotification,
 				object: nil)
 	}
 
@@ -88,18 +88,18 @@ public class KeyboardManager {
 	//MARK: Private methods
 
 	private dynamic func keyboardShown(notification: NSNotification?) {
-		let value = notification!.userInfo![UIKeyboardFrameEndUserInfoKey] as! NSValue
-		let frame = adjustRectForCurrentOrientation(value.CGRectValue())
+        let value = notification!.userInfo![UIResponder.keyboardFrameEndUserInfoKey] as! NSValue
+        let frame = adjustRectForCurrentOrientation(rect: value.cgRectValue)
 
 		StaticData.currentHeight = frame.size.height
 		StaticData.visible = true
 
 		let animationDuration =
-				notification!.userInfo![UIKeyboardAnimationDurationUserInfoKey] as! NSNumber
+            notification!.userInfo![UIResponder.keyboardAnimationDurationUserInfoKey] as! NSNumber
 		let animationCurve =
-				notification!.userInfo![UIKeyboardAnimationCurveUserInfoKey] as! NSNumber
+            notification!.userInfo![UIResponder.keyboardAnimationCurveUserInfoKey] as! NSNumber
 
-		layoutable?.layoutWhenKeyboardShown(frame.size.height,
+        layoutable?.layoutWhenKeyboardShown(keyboardHeight: frame.size.height,
 				animation: (time: animationDuration, curve: animationCurve))
 	}
 

@@ -16,13 +16,13 @@ import UIKit
 
 @objc public protocol DDLListScreenletDelegate : BaseScreenletDelegate {
 
-	optional func screenlet(screenlet: DDLListScreenlet,
+    @objc optional func screenlet(screenlet: DDLListScreenlet,
 			onDDLListResponseRecords records: [DDLRecord])
 
-	optional func screenlet(screenlet: DDLListScreenlet,
+    @objc optional func screenlet(screenlet: DDLListScreenlet,
 			onDDLListError error: NSError)
 
-	optional func screenlet(screenlet: DDLListScreenlet,
+    @objc optional func screenlet(screenlet: DDLListScreenlet,
 			onDDLSelectedRecord record: DDLRecord)
 
 }
@@ -35,7 +35,7 @@ import UIKit
 
 	@IBInspectable public var labelFields: String? {
 		didSet {
-			(screenletView as? DDLListViewModel)?.labelFields = parseFields(labelFields)
+            (screenletView as? DDLListViewModel)?.labelFields = parseFields(fields: labelFields)
 		}
 	}
 
@@ -56,11 +56,11 @@ import UIKit
 	override public func onCreated() {
 		super.onCreated()
 
-		viewModel.labelFields = parseFields(self.labelFields)
+        viewModel.labelFields = parseFields(fields: self.labelFields)
 	}
 
 	override public func createPageLoadInteractor(
-			page page: Int,
+        page: Int,
 			computeRowCount: Bool)
 			-> BaseListPageLoadInteractor {
 
@@ -76,21 +76,21 @@ import UIKit
 		return interactor
 	}
 
-	override public func onLoadPageError(page page: Int, error: NSError) {
+    override public func onLoadPageError(page: Int, error: NSError) {
 		super.onLoadPageError(page: page, error: error)
 
-		ddlListDelegate?.screenlet?(self, onDDLListError: error)
+        ddlListDelegate?.screenlet?(screenlet: self, onDDLListError: error)
 	}
 
-	override public func onLoadPageResult(page page: Int, rows: [AnyObject], rowCount: Int) {
+    override public func onLoadPageResult(page: Int, rows: [AnyObject], rowCount: Int) {
 		super.onLoadPageResult(page: page, rows: rows, rowCount: rowCount)
 
-		ddlListDelegate?.screenlet?(self,
+        ddlListDelegate?.screenlet?(screenlet: self,
 				onDDLListResponseRecords: rows as! [DDLRecord])
 	}
 
 	override public func onSelectedRow(row: AnyObject) {
-		ddlListDelegate?.screenlet?(self,
+        ddlListDelegate?.screenlet?(screenlet: self,
 				onDDLSelectedRecord: row as! DDLRecord)
 	}
 
@@ -101,9 +101,9 @@ import UIKit
 		var result: [String] = []
 
 		if let fieldsValue = fields {
-			let dirtyFields = (fieldsValue as NSString).componentsSeparatedByString(",")
+            let dirtyFields = (fieldsValue as NSString).components(separatedBy: ",")
 			result = dirtyFields.map() {
-				$0.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet())
+                $0.trimmingCharacters(in: NSCharacterSet.whitespaces)
 			}
 			result = result.filter() { return $0 != "" }
 		}

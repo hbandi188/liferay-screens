@@ -24,7 +24,7 @@ public class DDLFieldTableCell: UITableViewCell {
 			return (view as! DDLFieldTableCell)
 		}
 
-		return viewAsFieldCell(view!.superview)
+        return viewAsFieldCell(view: view!.superview)
 	}
 
 	public var tableView: UITableView?
@@ -42,7 +42,7 @@ public class DDLFieldTableCell: UITableViewCell {
 		var result = false
 
 		if let indexPathValue = indexPath {
-			if let rowCount = tableView?.numberOfRowsInSection(indexPathValue.section) {
+            if let rowCount = tableView?.numberOfRows(inSection: indexPathValue.section) {
 				if formView!.showSubmitButton {
 					result = (indexPathValue.row == rowCount - 2)
 				}
@@ -56,15 +56,15 @@ public class DDLFieldTableCell: UITableViewCell {
 	}
 
 	public var isFullyVisible: Bool {
-		let cellRect = tableView!.convertRect(self.frame, toView: tableView!.superview)
-		return CGRectContainsRect(tableView!.frame, cellRect)
+        let cellRect = tableView!.convert(self.frame, to: tableView!.superview)
+        return tableView!.frame.contains(cellRect)
 	}
 
 
 	//MARK: UITableViewCell
 
 	override public func awakeFromNib() {
-		let simpleTapRecognizer = UITapGestureRecognizer(target: self, action: "simpleTapDetected")
+        let simpleTapRecognizer = UITapGestureRecognizer(target: self, action: Selector(("simpleTapDetected")))
 		addGestureRecognizer(simpleTapRecognizer)
 	}
 
@@ -78,7 +78,7 @@ public class DDLFieldTableCell: UITableViewCell {
 	}
 
 	public func setCellHeight(height: CGFloat) {
-		formView!.setCellHeight(height, forField: field!)
+        formView!.setCellHeight(height: height, forField: field!)
 		
 		//FIXME Hack to fire the repaint of the cells
 		tableView!.beginUpdates()
@@ -86,7 +86,7 @@ public class DDLFieldTableCell: UITableViewCell {
 	}
 
 	public func resetCellHeight() -> CGFloat {
-		let height = formView!.resetCellHeightForField(field!)
+        let height = formView!.resetCellHeightForField(field: field!)
 
 		//FIXME Hack to fire the repaint of the cells
 		tableView!.beginUpdates()
@@ -98,18 +98,19 @@ public class DDLFieldTableCell: UITableViewCell {
 	internal func nextCell(indexPath:NSIndexPath) -> UITableViewCell? {
 		var result:UITableViewCell?
 
-		var row = indexPath.row
+		var row = indexPath.row + 1
 		let section = indexPath.section
-		let rowCount = tableView?.numberOfRowsInSection(section)
+        let rowCount = tableView?.numberOfRows(inSection: section) ?? 0
 
-		while ++row < rowCount {
-			let currentPath = NSIndexPath(forRow: row, inSection: section)
-			if let rowCell = tableView?.cellForRowAtIndexPath(currentPath) {
-				if rowCell.canBecomeFirstResponder() {
+		while row < rowCount {
+            let currentPath = NSIndexPath(row: row, section: section)
+            if let rowCell = tableView?.cellForRow(at: currentPath as IndexPath) {
+                if rowCell.canBecomeFirstResponder {
 					result = rowCell
 					break
 				}
 			}
+            row += 1
 		}
 
 		return result
@@ -122,19 +123,19 @@ public class DDLFieldTableCell: UITableViewCell {
 
 			switch currentTextInput.returnKeyType! {
 
-				case .Next:
-					if let nextCell = nextCell(indexPath!) {
-						if currentView.canResignFirstResponder() {
+            case .next:
+                if let nextCell = nextCell(indexPath: indexPath!) {
+                    if currentView.canResignFirstResponder {
 							currentView.resignFirstResponder()
 
-							if nextCell.canBecomeFirstResponder() {
+							if nextCell.canBecomeFirstResponder {
 								result = nextCell.becomeFirstResponder()
 							}
 
 						}
 					}
 
-				case .Send:
+            case .send:
 					formView?.userAction(name: DDLFormScreenlet.SubmitFormAction)
 					result = true
 
@@ -155,12 +156,11 @@ public class DDLFieldTableCell: UITableViewCell {
 	internal func moveSubviewsVertically(offsetY:CGFloat) {
 		for subview in contentView.subviews {
 			if offsetY == 0.0 {
-				subview.transform = CGAffineTransformIdentity
+                subview.transform = .identity
 			}
 			else {
-				subview.transform = CGAffineTransformTranslate(
-					CGAffineTransformIdentity, 0.0, offsetY)
-			}
+                subview.transform = CGAffineTransform.identity.translatedBy(x: 0.0, y: offsetY)
+            }
 		}
 	}
 

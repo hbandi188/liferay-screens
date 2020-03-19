@@ -16,10 +16,10 @@ import UIKit
 
 @objc public protocol WebContentDisplayScreenletDelegate : BaseScreenletDelegate {
 
-	optional func screenlet(screenlet: WebContentDisplayScreenlet,
+    @objc optional func screenlet(screenlet: WebContentDisplayScreenlet,
 			onWebContentResponse html: String ) -> String?
 
-	optional func screenlet(screenlet: WebContentDisplayScreenlet,
+    @objc optional func screenlet(screenlet: WebContentDisplayScreenlet,
 			onWebContentError error: NSError)
 
 }
@@ -51,13 +51,13 @@ import UIKit
 		}
 	}
 
-	override public func createInteractor(name name: String, sender: AnyObject?) -> Interactor? {
+    override public func createInteractor(name: String, sender: AnyObject?) -> Interactor? {
 		let interactor = WebContentDisplayLoadInteractor(screenlet: self)
 
 		interactor.cacheStrategy = CacheStrategyType(rawValue: self.offlinePolicy ?? "") ?? .RemoteFirst
 
 		interactor.onSuccess = {
-			let modifiedHtml = self.webContentDisplayDelegate?.screenlet?(self,
+            let modifiedHtml = self.webContentDisplayDelegate?.screenlet?(screenlet: self,
 					onWebContentResponse: interactor.resultHTML!)
 
 			(self.screenletView as! WebContentDisplayViewModel).htmlContent =
@@ -65,7 +65,7 @@ import UIKit
 		}
 
 		interactor.onFailure = {
-			self.webContentDisplayDelegate?.screenlet?(self, onWebContentError: $0)
+            self.webContentDisplayDelegate?.screenlet?(screenlet: self, onWebContentError: $0)
 		}
 
 		return interactor

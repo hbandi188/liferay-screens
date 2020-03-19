@@ -22,24 +22,24 @@ public class AssetListView_default: AssetListTableView {
 		return DefaultProgressPresenter()
 	}
 
-	override public func doFillLoadedCell(row row: Int, cell: UITableViewCell, object:AnyObject) {
+    override public func doFillLoadedCell(row: Int, cell: UITableViewCell, object:AnyObject) {
 		if let entry = object as? AssetListScreenletEntry {
 			cell.textLabel?.text = entry.title
-			cell.accessoryType = .DisclosureIndicator
+            cell.accessoryType = .disclosureIndicator
 			cell.accessoryView = nil
 		}
 	}
 
-	override public func doFillInProgressCell(row row: Int, cell: UITableViewCell) {
+    override public func doFillInProgressCell(row: Int, cell: UITableViewCell) {
 		cell.textLabel?.text = "..."
-		cell.accessoryType = .None
+        cell.accessoryType = .none
 
-		if let image = NSBundle.imageInBundles(
+        if let image = Bundle.imageInBundles(
 				name: "default-hourglass",
-				currentClass: self.dynamicType) {
+                currentClass: type(of: self)) {
 
 			cell.accessoryView = UIImageView(image: image)
-			cell.accessoryView?.frame = CGRectMake(0, 0, image.size.width, image.size.height)
+            cell.accessoryView?.frame = CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height)
 		}
 	}
 

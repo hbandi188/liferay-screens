@@ -17,10 +17,10 @@ import UIKit
 
 public class HttpOperation: ServerOperation {
 
-	public var url: NSURL
+	public var url: URL
 	public var resultData: NSData?
 
-	public init(url: NSURL) {
+	public init(url: URL) {
 		self.url = url
 
 		super.init()
@@ -29,12 +29,12 @@ public class HttpOperation: ServerOperation {
 
 	//MARK: ServerOperation
 
-	override public func doRun(session session: LRSession) {
-		let session = NSURLSession(configuration: NSURLSessionConfiguration.defaultSessionConfiguration())
+    override public func doRun(session: LRSession) {
+        let session = URLSession(configuration: URLSessionConfiguration.default)
 
-		let requestSemaphore = dispatch_semaphore_create(0)
+        let requestSemaphore = DispatchSemaphore(value: 0)
 
-		session.dataTaskWithURL(self.url, completionHandler:
+        session.dataTask(with: self.url, completionHandler:
 		{ (data, response, error) -> Void in
 			if let error = error {
 				self.lastError = error

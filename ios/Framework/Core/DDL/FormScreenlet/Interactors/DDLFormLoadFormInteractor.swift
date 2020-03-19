@@ -45,8 +45,8 @@ class DDLFormLoadFormInteractor: ServerReadOperationInteractor {
 		}
 
 		if let loadOp = op as? LiferayDDLFormLoadOperation,
-				record = loadOp.resultRecord,
-				userId = loadOp.resultUserId {
+				let record = loadOp.resultRecord,
+				let userId = loadOp.resultUserId {
 
 			cacheManager.setClean(
 				collection: ScreenletName(DDLFormScreenlet),
@@ -57,7 +57,7 @@ class DDLFormLoadFormInteractor: ServerReadOperationInteractor {
 		}
 	}
 
-	override func readFromCache(op: ServerOperation, result: AnyObject? -> ()) {
+	override func readFromCache(op: ServerOperation, result: (AnyObject?) -> ()) {
 		guard let cacheManager = SessionContext.currentCacheManager else {
 			result(nil)
 			return

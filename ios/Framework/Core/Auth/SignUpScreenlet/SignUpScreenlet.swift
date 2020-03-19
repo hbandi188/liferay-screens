@@ -16,10 +16,10 @@ import UIKit
 
 @objc public protocol SignUpScreenletDelegate : BaseScreenletDelegate {
 
-	optional func screenlet(screenlet: SignUpScreenlet,
+    @objc optional func screenlet(screenlet: SignUpScreenlet,
 			onSignUpResponseUserAttributes attributes: [String:AnyObject])
 
-	optional func screenlet(screenlet: SignUpScreenlet,
+    @objc optional func screenlet(screenlet: SignUpScreenlet,
 			onSignUpError error: NSError)
 
 }
@@ -60,7 +60,7 @@ import UIKit
 
 	//MARK: BaseScreenlet
 
-	override public func createInteractor(name name: String, sender: AnyObject?) -> Interactor? {
+	override public func createInteractor(name: String, sender: AnyObject?) -> Interactor? {
 
 		switch name {
 		case "signup-action":
@@ -76,24 +76,24 @@ import UIKit
 		let interactor = SignUpInteractor(screenlet: self)
 
 		interactor.onSuccess = {
-			self.signUpDelegate?.screenlet?(self,
+            self.signUpDelegate?.screenlet?(screenlet: self,
 					onSignUpResponseUserAttributes: interactor.resultUserAttributes!)
 
 			if self.autoLogin {
-				self.doAutoLogin(interactor.resultUserAttributes!)
+                self.doAutoLogin(userAttributes: interactor.resultUserAttributes!)
 
 				if self.saveCredentials {
 					SessionContext.removeStoredCredentials()
 
 					if SessionContext.storeCredentials() {
-						self.autoLoginDelegate?.onScreenletCredentialsSaved?(self)
+                        self.autoLoginDelegate?.onScreenletCredentialsSaved?(screenlet: self)
 					}
 				}
 			}
 		}
 
 		interactor.onFailure = {
-			self.signUpDelegate?.screenlet?(self, onSignUpError: $0)
+            self.signUpDelegate?.screenlet?(screenlet: self, onSignUpError: $0)
 			return
 		}
 
@@ -106,15 +106,15 @@ import UIKit
 		interactor.onSuccess = {
 			if SessionContext.isLoggedIn {
 				// refresh current session
-				self.doAutoLogin(interactor.resultUserAttributes!)
+                self.doAutoLogin(userAttributes: interactor.resultUserAttributes!)
 			}
 
-			self.signUpDelegate?.screenlet?(self,
+            self.signUpDelegate?.screenlet?(screenlet: self,
 					onSignUpResponseUserAttributes: interactor.resultUserAttributes!)
 		}
 
 		interactor.onFailure = {
-			self.signUpDelegate?.screenlet?(self, onSignUpError: $0)
+            self.signUpDelegate?.screenlet?(screenlet: self, onSignUpError: $0)
 		}
 
 		return interactor
@@ -127,17 +127,17 @@ import UIKit
 			.UserId: "userId"
 		]
 
-		let currentAuth = BasicAuthMethod.fromUserName(anonymousApiUserName!)
+        let currentAuth = BasicAuthMethod.fromUserName(userName: anonymousApiUserName!)
 
 		if let currentKey = userNameKeys[currentAuth],
-				userName = userAttributes[currentKey] as? String {
+				let userName = userAttributes[currentKey] as? String {
 
 			SessionContext.createBasicSession(
 				username: userName,
 				password: self.viewModel.password!,
 				userAttributes: userAttributes)
 
-			self.autoLoginDelegate?.screenlet?(self,
+            self.autoLoginDelegate?.screenlet?(screenlet: self,
 				onLoginResponseUserAttributes: userAttributes)
 		}
 	}

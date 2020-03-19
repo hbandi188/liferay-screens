@@ -42,17 +42,17 @@ class DownloadUserPortraitInteractor: ServerReadOperationInteractor {
 		var cacheAttributes: [String:AnyObject] {
 			switch self {
 			case .Attributes(let portraitId, _, _):
-				return ["portraitId": NSNumber(longLong: portraitId)]
+                return ["portraitId": NSNumber(value: portraitId)]
 			case .UserId(let userId):
-				return ["userId": NSNumber(longLong: userId)]
+                return ["userId": NSNumber(value: userId)]
 			case .EmailAddress(let companyId, let emailAddress):
 				return [
-					"companyId": NSNumber(longLong: companyId),
-					"emailAddress": emailAddress]
+                    "companyId": NSNumber(value: companyId),
+					"emailAddress": emailAddress as AnyObject]
 			case .ScreenName(let companyId, let screenName):
 				return [
-					"companyId": NSNumber(longLong: companyId),
-					"screenName": screenName]
+                    "companyId": NSNumber(value: companyId),
+					"screenName": screenName as AnyObject]
 			}
 		}
 	}
@@ -96,18 +96,18 @@ class DownloadUserPortraitInteractor: ServerReadOperationInteractor {
 				male: male)
 
 		case .UserId(let userId):
-			let currentUserId = SessionContext.userAttribute("userId") as? NSNumber
+            let currentUserId = SessionContext.userAttribute(key: "userId") as? NSNumber
 
-			if userId == currentUserId?.longLongValue {
+            if userId == currentUserId?.int64Value {
 				return createOperationForLogged()
 			}
 			else {
-				return createOperationFor(GetUserByUserIdOperation(userId: userId))
+                return createOperationFor(loadUserOp: GetUserByUserIdOperation(userId: userId))
 			}
 
 		case .EmailAddress(let companyId, let emailAddress):
-			let currentCompanyId = SessionContext.userAttribute("companyId") as? NSNumber
-			let currentEmailAddress = SessionContext.userAttribute("emailAddress") as? NSString
+            let currentCompanyId = SessionContext.userAttribute(key: "companyId") as? NSNumber
+            let currentEmailAddress = SessionContext.userAttribute(key: "emailAddress") as? NSString
 
 			if companyId == currentCompanyId?.longLongValue
 					&& emailAddress == currentEmailAddress {
@@ -115,14 +115,14 @@ class DownloadUserPortraitInteractor: ServerReadOperationInteractor {
 			}
 			else {
 				return createOperationFor(
-					GetUserByEmailOperation(
+                    loadUserOp: GetUserByEmailOperation(
 						companyId: companyId,
 						emailAddress: emailAddress))
 			}
 
 		case .ScreenName(let companyId, let screenName):
-			let currentCompanyId = SessionContext.userAttribute("companyId") as? NSNumber
-			let currentScreenName = SessionContext.userAttribute("screenName") as? NSString
+            let currentCompanyId = SessionContext.userAttribute(key: "companyId") as? NSNumber
+            let currentScreenName = SessionContext.userAttribute(key: "screenName") as? NSString
 
 			if companyId == currentCompanyId?.longLongValue
 					&& screenName == currentScreenName {
@@ -130,7 +130,7 @@ class DownloadUserPortraitInteractor: ServerReadOperationInteractor {
 			}
 			else {
 				return createOperationFor(
-					GetUserByScreenNameOperation(
+                    loadUserOp: GetUserByScreenNameOperation(
 						companyId: companyId,
 						screenName: screenName))
 			}
@@ -138,9 +138,9 @@ class DownloadUserPortraitInteractor: ServerReadOperationInteractor {
 	}
 
 	override func completedOperation(op: ServerOperation) {
-		if let httpOp = toHttpOperation(op),
-				resultData = httpOp.resultData {
-			resultImage = UIImage(data: resultData)
+        if let httpOp = toHttpOperation(op: op),
+		   let resultData = httpOp.resultData {
+            resultImage = UIImage(data: resultData as Data)
 		}
 	}
 
@@ -152,18 +152,18 @@ class DownloadUserPortraitInteractor: ServerReadOperationInteractor {
 			return
 		}
 
-		if let httpOp = toHttpOperation(op),
-				resultData = httpOp.resultData {
+        if let httpOp = toHttpOperation(op: op),
+		   let resultData = httpOp.resultData {
 
 			cacheManager.setClean(
-				collection: ScreenletName(UserPortraitScreenlet),
+                collection: ScreenletName(klass: UserPortraitScreenlet.self),
 				key: mode.cacheKey,
 				value: resultData,
 				attributes: mode.cacheAttributes)
 		}
 	}
 
-	override func readFromCache(op: ServerOperation, result: AnyObject? -> ()) {
+	override func readFromCache(op: ServerOperation, result: (AnyObject?) -> ()) {
 		guard let cacheManager = SessionContext.currentCacheManager else {
 			result(nil)
 			return
@@ -171,16 +171,16 @@ class DownloadUserPortraitInteractor: ServerReadOperationInteractor {
 
 		func loadImageFromCache(output outputConnector: HttpOperation) {
 			cacheManager.getImage(
-					collection: ScreenletName(UserPortraitScreenlet),
+                collection: ScreenletName(klass: UserPortraitScreenlet.self),
 					key: self.mode.cacheKey) {
 				if let image = $0 {
-					outputConnector.resultData = UIImagePNGRepresentation(image)
+                    outputConnector.resultData = image.pngData() as NSData?
 					outputConnector.lastError = nil
 					result($0)
 				}
 				else {
 					outputConnector.resultData = nil
-					outputConnector.lastError = NSError.errorWithCause(.NotAvailable)
+                    outputConnector.lastError = NSError.errorWithCause(cause: .NotAvailable)
 					result(nil)
 				}
 			}
@@ -191,7 +191,7 @@ class DownloadUserPortraitInteractor: ServerReadOperationInteractor {
 			// asking for user attributes. if the image is cached, we'd need to skip this step
 
 			cacheManager.getAny(
-					collection: ScreenletName(UserPortraitScreenlet),
+                collection: ScreenletName(klass: UserPortraitScreenlet.self),
 					key: mode.cacheKey) {
 				if $0 == nil {
 					// not cached: continue
@@ -201,7 +201,7 @@ class DownloadUserPortraitInteractor: ServerReadOperationInteractor {
 					// cached. Skip!
 
 					// create a dummy HttpConnector to store the result
-					let dummyConnector = HttpOperation(url: NSURL(string: "http://dummy")!)
+                    let dummyConnector = HttpOperation(url: NSURL(string: "http://dummy")! as URL)
 
 					// set this dummy connector to allow "completedConnector" method retrieve the result
 					(op as? ServerOperationChain)?.currentOperation = dummyConnector
@@ -212,13 +212,13 @@ class DownloadUserPortraitInteractor: ServerReadOperationInteractor {
 				}
 			}
 		}
-		else if let httpOp = toHttpOperation(op) {
+        else if let httpOp = toHttpOperation(op: op) {
 			cacheManager.getAny(
-					collection: ScreenletName(UserPortraitScreenlet),
+                collection: ScreenletName(klass: UserPortraitScreenlet.self),
 					key: mode.cacheKey) {
 				guard let cachedObject = $0 else {
 					httpOp.resultData = nil
-					httpOp.lastError = NSError.errorWithCause(.NotAvailable)
+                    httpOp.lastError = NSError.errorWithCause(cause: .NotAvailable)
 					result(nil)
 					return
 				}
@@ -249,12 +249,12 @@ class DownloadUserPortraitInteractor: ServerReadOperationInteractor {
 	}
 
 	private func createOperationForLogged() -> ServerOperation? {
-		if let portraitId = SessionContext.userAttribute("portraitId") as? NSNumber,
-				uuid = SessionContext.userAttribute("uuid") as? String {
+        if let portraitId = SessionContext.userAttribute(key: "portraitId") as? NSNumber,
+            let uuid = SessionContext.userAttribute(key: "uuid") as? String {
 				resultUserId = SessionContext.currentUserId
 
 			return createOperationFor(
-				portraitId: portraitId.longLongValue,
+                portraitId: portraitId.int64Value,
 				uuid: uuid,
 				male: true)
 		}
@@ -276,16 +276,16 @@ class DownloadUserPortraitInteractor: ServerReadOperationInteractor {
 		return chain
 	}
 
-	private func createOperationFor(attributes attributes: [String:AnyObject]?) -> ServerOperation? {
+    private func createOperationFor(attributes: [String:AnyObject]?) -> ServerOperation? {
 		if let attributes = attributes,
-				portraitId = attributes["portraitId"] as? NSNumber,
-				uuid = attributes["uuid"] as? String,
-				userId = attributes["userId"] as? NSNumber {
+		   let portraitId = attributes["portraitId"] as? NSNumber,
+		   let uuid = attributes["uuid"] as? String,
+		   let userId = attributes["userId"] as? NSNumber {
 
-			resultUserId = userId.longLongValue
+            resultUserId = userId.int64Value
 
 			return createOperationFor(
-				portraitId: portraitId.longLongValue,
+                portraitId: portraitId.int64Value,
 				uuid: uuid,
 				male: true)
 		}
@@ -293,23 +293,23 @@ class DownloadUserPortraitInteractor: ServerReadOperationInteractor {
 		return nil
 	}
 
-	private func createOperationFor(portraitId portraitId: Int64, uuid: String, male: Bool) -> ServerOperation? {
+    private func createOperationFor(portraitId: Int64, uuid: String, male: Bool) -> ServerOperation? {
 		if let url = URLForAttributes(
 				portraitId: portraitId,
 				uuid: uuid,
 				male: male) {
-			return HttpOperation(url: url)
+            return HttpOperation(url: url as URL)
 		}
 
 		return nil
 	}
 
-	private func URLForAttributes(portraitId portraitId: Int64, uuid: String, male: Bool) -> NSURL? {
+    private func URLForAttributes(portraitId: Int64, uuid: String, male: Bool) -> NSURL? {
 
 		func encodedSHA1(input: String) -> String? {
 			var result: String?
 #if LIFERAY_SCREENS_FRAMEWORK
-			if let inputData = input.dataUsingEncoding(NSUTF8StringEncoding,
+            if let inputData = input.data(using: String.Encoding.utf8,
 					allowLossyConversion: false) {
 
 				let resultBytes = CryptoSwift.Hash.sha1(inputData.arrayOfBytes()).calculate()
@@ -328,7 +328,7 @@ class DownloadUserPortraitInteractor: ServerReadOperationInteractor {
 			return result
 		}
 
-		if let hashedUUID = encodedSHA1(uuid) {
+        if let hashedUUID = encodedSHA1(input: uuid) {
 			let maleString = male ? "male" : "female"
 
 			let url = "\(LiferayServerContext.server)/image/user_\(maleString)/_portrait" +

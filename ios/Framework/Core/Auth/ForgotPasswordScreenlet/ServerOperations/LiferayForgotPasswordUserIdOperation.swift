@@ -19,14 +19,14 @@ public class LiferayForgotPasswordUserIdOperation: LiferayForgotPasswordBaseOper
 	//MARK: LiferayForgotPasswordBaseOperation
 
 	override public func sendForgotPasswordRequest(
-			service service: LRScreensuserService_v62)
+        service: LRScreensuserService_v62)
 			throws -> Bool? {
 
 		let userId = Int64(Int(viewModel.userName!)!)
 
 		// TODO change plugin service to return integer code instead of boolean.
 		// Xcode transpiler is messing it up.
-		try service.sendPasswordByUserIdWithUserId(userId)
+                try service.sendPasswordByUserId(withUserId: userId)
 
 		return true
 	}

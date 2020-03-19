@@ -28,7 +28,7 @@ class ForgotPasswordInteractor: ServerOperationInteractor {
 
 		let operation: LiferayForgotPasswordBaseOperation?
 
-		switch BasicAuthMethod.create(screenlet.basicAuthMethod) {
+        switch BasicAuthMethod.create(text: screenlet.basicAuthMethod) {
 			case .ScreenName:
 				operation = LiferayForgotPasswordScreenNameOperation(
 					viewModel: screenlet.viewModel,
@@ -56,7 +56,7 @@ class ForgotPasswordInteractor: ServerOperationInteractor {
 	}
 
 	override func interactionResult() -> AnyObject? {
-		return resultPasswordSent
+        return resultPasswordSent as AnyObject?
 	}
 
 }

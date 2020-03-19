@@ -72,14 +72,14 @@ public class LiferayDDLFormSubmitOperation: ServerOperation {
 		return error
 	}
 
-	override public func doRun(session session: LRSession) {
+    override public func doRun(session: LRSession) {
 		let service = LRDDLRecordService_v62(session: session)
 
 		let serviceContextAttributes = [
-			"userId": NSNumber(longLong: userId!),
-			"scopeGroupId": NSNumber(longLong: groupId!)]
+            "userId": NSNumber(value: userId!),
+            "scopeGroupId": NSNumber(value: groupId!)]
 
-		let serviceContextWrapper = LRJSONObjectWrapper(JSONObject: serviceContextAttributes)
+        let serviceContextWrapper = LRJSONObjectWrapper(jsonObject: serviceContextAttributes)
 
 		do {
 			let recordDictionary: [NSObject : AnyObject]?
@@ -101,11 +101,11 @@ public class LiferayDDLFormSubmitOperation: ServerOperation {
 
 			if let recordIdValue = recordDictionary?["recordId"]?.longLongValue {
 				resultRecordId = recordIdValue
-				resultAttributes = recordDictionary
+                resultAttributes = recordDictionary as NSDictionary?
 				lastError = nil
 			}
 			else {
-				lastError = NSError.errorWithCause(.InvalidServerResponse)
+                lastError = NSError.errorWithCause(cause: .InvalidServerResponse)
 			}
 		}
 		catch let error as NSError {

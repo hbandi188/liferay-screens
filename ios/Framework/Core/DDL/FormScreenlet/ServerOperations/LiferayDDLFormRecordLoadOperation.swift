@@ -32,7 +32,7 @@ public class LiferayDDLFormRecordLoadOperation: ServerOperation {
 
 	//MARK: ServerOperation
 
-	override public func doRun(session session: LRSession) {
+    override public func doRun(session: LRSession) {
 		let service = LRScreensddlrecordService_v62(session: session)
 
 		do {
@@ -40,7 +40,7 @@ public class LiferayDDLFormRecordLoadOperation: ServerOperation {
 					locale: NSLocale.currentLocaleString)
 
 			if let resultData = recordDic["modelValues"] as? [String:AnyObject],
-					resultAttributes = recordDic["modelAttributes"] as? [String:AnyObject] {
+                let resultAttributes = recordDic["modelAttributes"] as? [String:AnyObject] {
 				resultRecordData = resultData
 				resultRecordId = recordId
 				resultRecordAttributes = resultAttributes
@@ -52,7 +52,7 @@ public class LiferayDDLFormRecordLoadOperation: ServerOperation {
 				resultRecordAttributes = nil
 			}
 			else {
-				lastError = NSError.errorWithCause(.InvalidServerResponse)
+                lastError = NSError.errorWithCause(cause: .InvalidServerResponse)
 				resultRecordData = nil
 				resultRecordId = nil
 				resultRecordAttributes = nil

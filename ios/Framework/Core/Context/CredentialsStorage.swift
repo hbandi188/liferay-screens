@@ -50,12 +50,12 @@ import UIKit
 		super.init()
 	}
 
-	func store(session session: LRSession?, userAttributes: [String:AnyObject]) -> Bool {
+    func store(session: LRSession?, userAttributes: [String:AnyObject]) -> Bool {
 		if session == nil || userAttributes.isEmpty {
 			return false
 		}
 
-		return credentialStore.storeCredentials(session,
+        return credentialStore.storeCredentials(session: session,
 				userAttributes: userAttributes)
 	}
 
@@ -66,13 +66,13 @@ import UIKit
 	public func load() -> LoadResult? {
 		if credentialStore.loadStoredCredentials() {
 			if let loadedAuth = credentialStore.authentication,
-					loadedUserAttributes = credentialStore.userAttributes {
+                let loadedUserAttributes = credentialStore.userAttributes {
 
 				let loadedSession = LRSession(
 						server: LiferayServerContext.server,
 						authentication: loadedAuth)
 
-				return (loadedSession, loadedUserAttributes)
+                return (loadedSession, loadedUserAttributes) as! CredentialsStorage.LoadResult
 			}
 		}
 

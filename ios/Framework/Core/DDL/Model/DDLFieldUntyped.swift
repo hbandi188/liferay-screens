@@ -17,9 +17,9 @@ import Foundation
 public class DDLFieldUntyped: DDLField {
 
 	public init(name: String, value: AnyObject, locale: NSLocale) {
-		let attributes = ["name": name, "predefinedValue": value]
+        let attributes = ["name": name, "predefinedValue": value] as [String : Any]
 
-		super.init(attributes: attributes, locale: locale)
+        super.init(attributes: attributes as [String : AnyObject], locale: locale)
 	}
 
 	public required init?(coder aDecoder: NSCoder) {

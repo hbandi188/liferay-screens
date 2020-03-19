@@ -28,9 +28,9 @@ PODS:
     - CocoaLumberjack/Core
   - CocoaLumberjack/Extensions (2.2.0):
     - CocoaLumberjack/Default
-  - CryptoSwift (0.1.1)
+  - CryptoSwift (1.2.0)
   - DTPickerPresenter (0.2.0)
-  - KeychainAccess (2.3.1)
+  - KeychainAccess (3.2.1)
   - Liferay-iOS-SDK (6.2.0.22):
     - AFNetworking (= 2.6.3)
   - Liferay-OAuth (0.1.1):
@@ -62,7 +62,6 @@ PODS:
     - YapDatabase/SQLCipher/Extensions/RTreeIndex (= 2.8.2)
     - YapDatabase/SQLCipher/Extensions/SearchResults (= 2.8.2)
     - YapDatabase/SQLCipher/Extensions/SecondaryIndex (= 2.8.2)
-    - YapDatabase/SQLCipher/Extensions/SecondaryIndex (= 2.8.2)
     - YapDatabase/SQLCipher/Extensions/Views (= 2.8.2)
   - YapDatabase/SQLCipher/Extensions/CloudKit (2.8.2):
     - YapDatabase/SQLCipher/Core
@@ -89,9 +88,9 @@ PODS:
     - YapDatabase/SQLCipher/Core
 
 DEPENDENCIES:
-  - CryptoSwift (= 0.1.1)
+  - CryptoSwift (= 1.2.0)
   - DTPickerPresenter (= 0.2.0)
-  - KeychainAccess (= 2.3.1)
+  - KeychainAccess (= 3.2.1)
   - Liferay-iOS-SDK (= 6.2.0.22)
   - Liferay-OAuth (= 0.1.1)
   - MBProgressHUD (= 0.9.1)
@@ -103,12 +102,31 @@ DEPENDENCIES:
   - TNRadioButtonGroup (= 0.4)
   - YapDatabase/SQLCipher (= 2.8.2)
 
+SPEC REPOS:
+  https://github.com/CocoaPods/Specs.git:
+    - AFNetworking
+    - CocoaLumberjack
+    - CryptoSwift
+    - DTPickerPresenter
+    - KeychainAccess
+    - Liferay-iOS-SDK
+    - Liferay-OAuth
+    - MBProgressHUD
+    - MDRadialProgress
+    - Nocilla
+    - ODRefreshControl
+    - SMXMLDocument
+    - SQLCipher
+    - SwiftTryCatch
+    - TNRadioButtonGroup
+    - YapDatabase
+
 SPEC CHECKSUMS:
   AFNetworking: cb8d14a848e831097108418f5d49217339d4eb60
   CocoaLumberjack: 17fe8581f84914d5d7e6360f7c70022b173c3ae0
-  CryptoSwift: c11640d3d66107efc8333e4131a5173f072b1d61
+  CryptoSwift: 40e374e45291d8dceedcb0d6184da94533eaabdf
   DTPickerPresenter: 1976573e3475534559b6ec1dad64b2ece16c966d
-  KeychainAccess: d54b31c75745cfa595b3654590e8cb491a75d411
+  KeychainAccess: d5470352939ced6d6f7fb51cb2e67aae51fc294f
   Liferay-iOS-SDK: 41a69cdeaefd6716923ce3a6bd08a5156a9b90ed
   Liferay-OAuth: d86e49fad35177caffb08f7df006589182a02895
   MBProgressHUD: c47f2c166c126cf2ce36498d80f33e754d4e93ad
@@ -121,4 +139,6 @@ SPEC CHECKSUMS:
   TNRadioButtonGroup: f5fb9b545d8913bbabe6a72ea1fa6fba4d833bb6
   YapDatabase: d97b1a0bfd6856745a7a398045f3ca32cf248fda
 
-COCOAPODS: 0.39.0
+PODFILE CHECKSUM: 34c4eb7f7ae50bade623ce54dc32177a6638255f
+
+COCOAPODS: 1.8.4

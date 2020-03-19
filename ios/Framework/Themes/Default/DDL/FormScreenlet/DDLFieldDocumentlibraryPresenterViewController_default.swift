@@ -31,17 +31,16 @@ public class DDLFieldDocumentlibraryPresenterViewController_default:
 	private let imagePicker = UIImagePickerController()
 
 
-	public override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
+    public override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
 		super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
 	}
 
 	public convenience init() {
-		func bundleForXib() -> NSBundle? {
-			let bundles = NSBundle.allBundles(
-					DDLFieldDocumentlibraryPresenterViewController_default.self);
+        func bundleForXib() -> Bundle? {
+            let bundles = Bundle.allBundles(currentClass:DDLFieldDocumentlibraryPresenterViewController_default.self);
 
 			return bundles.filter {
-					$0.pathForResource(xibName, ofType:"nib") != nil
+                $0.path(forResource: xibName, ofType:"nib") != nil
 				}
 				.first
 		}
@@ -52,7 +51,7 @@ public class DDLFieldDocumentlibraryPresenterViewController_default:
 
 		imagePicker.delegate = self
 		imagePicker.allowsEditing = false
-		imagePicker.modalPresentationStyle = .CurrentContext
+        imagePicker.modalPresentationStyle = .currentContext
 
 		takeNewButton?.replaceAttributedTitle(
 				LocalizedString("default", key: "ddlform-upload-picker-take-new", obj: self),
@@ -80,44 +79,41 @@ public class DDLFieldDocumentlibraryPresenterViewController_default:
 	}
 
 	@IBAction private func takePhotoAction(sender: AnyObject) {
-		imagePicker.sourceType = .Camera
+        imagePicker.sourceType = .camera
 
-		presentViewController(imagePicker, animated: true) {}
+        present(imagePicker, animated: true) {}
 	}
 
 	@IBAction private func selectPhotosAction(sender: AnyObject) {
-		imagePicker.sourceType = .SavedPhotosAlbum
+        imagePicker.sourceType = .savedPhotosAlbum
 
-		presentViewController(imagePicker, animated: true) {}
+        present(imagePicker, animated: true) {}
 	}
 
 	@IBAction private func selectVideosAction(sender: AnyObject) {
-		cancelButtonAction(sender)
+        cancelButtonAction(sender: sender)
 
-		imagePicker.sourceType = .SavedPhotosAlbum
+        imagePicker.sourceType = .savedPhotosAlbum
 		imagePicker.mediaTypes = [kUTTypeMovie as NSString as String]
 
-		presentViewController(imagePicker, animated: true) {}
+        present(imagePicker, animated: true) {}
 	}
 
 
 	//MARK: UIImagePickerControllerDelegate
 
-    public func imagePickerController(
-			picker: UIImagePickerController,
-			didFinishPickingMediaWithInfo info: [String : AnyObject]) {
-
-		let selectedImage = info[UIImagePickerControllerOriginalImage] as? UIImage
-		let selectedURL = info[UIImagePickerControllerMediaURL] as? NSURL
+    public func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        let selectedImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage
+        let selectedURL = info[UIImagePickerController.InfoKey.mediaURL] as? NSURL
 
 		selectedDocumentClosure?(selectedImage, selectedURL)
 
-		imagePicker.dismissViewControllerAnimated(true) {}
+        imagePicker.dismiss(animated: true) {}
 	}
 
-    public func imagePickerControllerDidCancel(picker: UIImagePickerController) {
-		cancelButtonAction(picker)
-		imagePicker.dismissViewControllerAnimated(true) {}
+    public func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        cancelButtonAction(sender: picker)
+        imagePicker.dismiss(animated: true) {}
 	}
 
 }

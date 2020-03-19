@@ -18,8 +18,8 @@ import UIKit
 
 	public var actionName: String?
 
-	public var onSuccess: (Void -> Void)?
-	public var onFailure: (NSError -> Void)?
+	public var onSuccess: (() -> Void)?
+	public var onFailure: ((NSError) -> Void)?
 
 	public var lastError: NSError?
 

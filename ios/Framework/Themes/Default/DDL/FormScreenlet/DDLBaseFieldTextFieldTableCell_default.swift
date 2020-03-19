@@ -29,28 +29,28 @@ public class DDLBaseFieldTextboxTableCell_default: DDLFieldTableCell, UITextFiel
 
 			if let labelValue = label {
 				labelValue.text = field!.label
-				labelValue.hidden = false
+                labelValue.isHidden = false
 
-				moveSubviewsVertically(0.0)
+                moveSubviewsVertically(offsetY: 0.0)
 			}
 		}
 		else {
 			textField?.placeholder = field!.label
 
 			if let labelValue = label {
-				labelValue.hidden = true
+                labelValue.isHidden = true
 
 				moveSubviewsVertically(
-					-(DDLFieldTextFieldHeightWithLabel - DDLFieldTextFieldHeightWithoutLabel))
+                    offsetY: -(DDLFieldTextFieldHeightWithLabel - DDLFieldTextFieldHeightWithoutLabel))
 
-				setCellHeight(DDLFieldTextFieldHeightWithoutLabel)
+                setCellHeight(height: DDLFieldTextFieldHeightWithoutLabel)
 			}
 		}
 
-		textField?.returnKeyType = isLastCell ? .Send : .Next
+        textField?.returnKeyType = isLastCell ? .send : .next
 
 		if field!.lastValidationResult != nil {
-			onPostValidation(field!.lastValidationResult!)
+            onPostValidation(valid: field!.lastValidationResult!)
 		}
 
 		if field!.currentValue != nil {
@@ -59,64 +59,64 @@ public class DDLBaseFieldTextboxTableCell_default: DDLFieldTableCell, UITextFiel
 	}
 
 	override public func onPostValidation(valid: Bool) {
-		super.onPostValidation(valid)
+        super.onPostValidation(valid: valid)
 
 		if valid {
-			textFieldBackground?.image = NSBundle.imageInBundles(
+            textFieldBackground?.image = Bundle.imageInBundles(
 					name: "default-field",
-					currentClass: self.dynamicType)
+                    currentClass: type(of: self))
 
-			textFieldBackground?.highlightedImage = NSBundle.imageInBundles(
+            textFieldBackground?.highlightedImage = Bundle.imageInBundles(
 					name: "default-field-focused",
-					currentClass: self.dynamicType)
+                    currentClass: type(of: self))
 		}
 		else {
-			let image = NSBundle.imageInBundles(
+            let image = Bundle.imageInBundles(
 					name: "default-field-failed",
-					currentClass: self.dynamicType)
+                    currentClass: type(of: self))
 
 			textFieldBackground?.image = image
 			textFieldBackground?.highlightedImage = image
 		}
 	}
 
-	override public func canBecomeFirstResponder() -> Bool {
-		return textField!.canBecomeFirstResponder()
-	}
+    override public var canBecomeFirstResponder: Bool {
+        return self.textField?.canBecomeFirstResponder ?? false
+    }
 
 	override public func becomeFirstResponder() -> Bool {
-		return textField!.becomeFirstResponder()
+        return self.textField?.becomeFirstResponder() ?? false
 	}
 
 
 	//MARK: UITextFieldDelegate
 
-	public func textFieldShouldBeginEditing(textField: UITextField) -> Bool {
-		textFieldBackground?.highlighted = true
+    public func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
+        textFieldBackground?.isHighlighted = true
 
 		formView!.firstCellResponder = textField
 
 		return true
 	}
 
-	public func textFieldDidEndEditing(textField: UITextField) {
-		textFieldBackground?.highlighted = false
+    public func textFieldDidEndEditing(_ textField: UITextField) {
+        textFieldBackground?.isHighlighted = false
 	}
 
-	public func textField(textField: UITextField,
-			shouldChangeCharactersInRange range: NSRange,
+    public func textField(_ textField: UITextField,
+                          shouldChangeCharactersIn range: NSRange,
 			replacementString string: String) -> Bool {
 
 		if field!.lastValidationResult != nil && !field!.lastValidationResult! {
 			field!.lastValidationResult = true
-			onPostValidation(true)
+            onPostValidation(valid: true)
 
 			//FIXME!
 			// This hack is the only way I found to repaint the text field while it's in
 			// edition mode. It doesn't produce flickering nor nasty effects.
 
-			textFieldBackground?.highlighted = false
-			textFieldBackground?.highlighted = true
+            textFieldBackground?.isHighlighted = false
+            textFieldBackground?.isHighlighted = true
 		}
 
 		return true

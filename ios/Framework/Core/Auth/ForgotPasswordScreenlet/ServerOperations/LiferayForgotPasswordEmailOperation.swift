@@ -19,7 +19,7 @@ public class LiferayForgotPasswordEmailOperation: LiferayForgotPasswordBaseOpera
 	//MARK: LiferayForgotPasswordBaseOperation
 
 	override public func sendForgotPasswordRequest(
-			service service: LRScreensuserService_v62)
+        service: LRScreensuserService_v62)
 			throws -> Bool? {
 
 		let companyId = (self.companyId != 0) ? self.companyId : LiferayServerContext.companyId
@@ -27,7 +27,7 @@ public class LiferayForgotPasswordEmailOperation: LiferayForgotPasswordBaseOpera
 		// TODO change plugin service to return integer code instead of boolean.
 		// Xcode transpiler is messing it up.
 
-		try service.sendPasswordByEmailAddressWithCompanyId(companyId,
+                try service.sendPasswordByEmailAddress(withCompanyId: companyId,
 			emailAddress: viewModel.userName!)
 
 		return true

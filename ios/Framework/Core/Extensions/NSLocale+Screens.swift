@@ -18,7 +18,7 @@ extension NSLocale {
 
 	public class var currentLanguageString: String {
 		get {
-			var preferredLanguage = NSLocale.preferredLanguages()[0] 
+            var preferredLanguage = NSLocale.preferredLanguages[0]
 
 			preferredLanguage = preferredLanguage.substringToIndex(
 				preferredLanguage.startIndex.advancedBy(2))
@@ -26,8 +26,8 @@ extension NSLocale {
 			return preferredLanguage
 		}
 		set {
-			NSUserDefaults.standardUserDefaults().setObject([newValue], forKey: "AppleLanguages")
-			NSUserDefaults.standardUserDefaults().synchronize()
+            UserDefaults.standardUserDefaults(setObject([newValue], forKey: "AppleLanguages"),
+                UserDefaults.standardUserDefaults(synchronize()
 		}
 	}
 
@@ -60,9 +60,9 @@ extension NSLocale {
 		return "en_US"
 	}
 
-	public class func bundleForCurrentLanguageInBundle(bundle: NSBundle) -> NSBundle? {
-		if let path = bundle.pathForResource(currentLanguageString, ofType: "lproj") {
-			return NSBundle(path: path)
+    public class func bundleForCurrentLanguageInBundle(bundle: Bundle) -> Bundle? {
+        if let path = bundle.path(forResource: currentLanguageString, ofType: "lproj") {
+            return Bundle(path: path)
 		}
 
 		return nil

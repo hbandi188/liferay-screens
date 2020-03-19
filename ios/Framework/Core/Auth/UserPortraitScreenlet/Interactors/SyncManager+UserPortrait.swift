@@ -18,37 +18,37 @@ extension SyncManager {
 	func userPortraitSynchronizer(
 			key: String,
 			attributes: [String:AnyObject])
-			-> Signal -> () {
+			-> (Signal) -> () {
 
-		return { signal in
+		{ signal in
 			let userId = attributes["userId"] as! NSNumber
 
 			self.cacheManager.getImage(
-					collection: ScreenletName(UserPortraitScreenlet),
+                collection: ScreenletName(klass: UserPortraitScreenlet.self),
 					key: key) {
 
 				if let image = $0 {
 					let interactor = UploadUserPortraitInteractor(
 						screenlet: nil,
-						userId: userId.longLongValue,
+                        userId: userId.int64Value,
 						image: image)
 					
-					self.prepareInteractorForSync(interactor,
+                    self.prepareInteractorForSync(interactor: interactor,
 						key: key,
 						attributes: attributes,
 						signal: signal,
-						screenletClassName: ScreenletName(UserPortraitScreenlet))
+                        screenletClassName: ScreenletName(klass: UserPortraitScreenlet.self))
 
 					if !interactor.start() {
 						signal()
 					}
 				}
 				else {
-					self.delegate?.syncManager?(self,
-						onItemSyncScreenlet: ScreenletName(UserPortraitScreenlet),
+                    self.delegate?.syncManager?(manager: self,
+                                                onItemSyncScreenlet: ScreenletName(klass: UserPortraitScreenlet.self),
 						failedKey: key,
 						attributes: attributes,
-						error: NSError.errorWithCause(.NotAvailable))
+                        error: NSError.errorWithCause(cause: .NotAvailable))
 
 					signal()
 				}

@@ -51,20 +51,20 @@ class UploadUserPortraitInteractor: ServerWriteOperationInteractor {
 			: cacheManager.setClean
 
 		cacheFunction(
-			collection: ScreenletName(UserPortraitScreenlet),
-			key: "userId-\(userId)",
-			value: image,
-			attributes: ["userId": NSNumber(longLong: userId)])
+            ScreenletName(klass: UserPortraitScreenlet.self),
+            "userId-\(userId)",
+            image,
+            ["userId": NSNumber(value: userId)])
 	}
 
 	override func callOnSuccess() {
 		if cacheStrategy == .CacheFirst {
 			// update cache with date sent
 			SessionContext.currentCacheManager?.setClean(
-				collection: ScreenletName(UserPortraitScreenlet),
+                collection: ScreenletName(klass: UserPortraitScreenlet.self),
 				key: "userId-\(userId)",
 				attributes: [
-					"userId": NSNumber(longLong: userId)])
+                    "userId": NSNumber(value: userId)])
 		}
 
 		super.callOnSuccess()

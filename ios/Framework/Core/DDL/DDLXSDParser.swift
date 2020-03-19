@@ -53,7 +53,7 @@ public class DDLXSDParser {
 			result = []
 
 			for element in elements as! [SMXMLElement] {
-				if let formField = createFormField(element,
+                if let formField = createFormField(xmlElement: element,
 						locale: locale,
 						defaultLocale: defaultLocale) {
 
@@ -72,7 +72,7 @@ public class DDLXSDParser {
 
 		let dataType = DDLField.DataType.from(xmlElement:xmlElement)
 
-		let localizedMetadata = processLocalizedMetadata(xmlElement,
+                let localizedMetadata = processLocalizedMetadata(dynamicElement: xmlElement,
 				locale: locale,
 				defaultLocale: defaultLocale)
 
@@ -84,7 +84,7 @@ public class DDLXSDParser {
 	}
 
 	private func mergeDictionaries(
-			dict1 dict1:[String:AnyObject],
+        dict1:[String:AnyObject],
 			dict2:[String:AnyObject])
 			-> [String:AnyObject] {
 
@@ -111,22 +111,22 @@ public class DDLXSDParser {
 		func addElement(
 				name elementName: String,
 				metadata: SMXMLElement,
-				inout result: [String:AnyObject]) {
+                result: inout [String:AnyObject]) {
 
-			if let element = metadata.childWithAttribute("name", value: elementName) {
-				result[elementName] = element.value
+            if let element = metadata.child(withAttribute: "name", value: elementName) {
+                result[elementName] = element.value as AnyObject?
 			}
 		}
 
 		func findOptions(
-				dynamicElement dynamicElement:SMXMLElement,
+            dynamicElement:SMXMLElement,
 				locale: NSLocale,
 				defaultLocale: NSLocale)
 				-> [[String:AnyObject]]? {
 
 			var options:[[String:AnyObject]] = []
 
-			let optionElements = childrenWithAttribute("type",
+                    let optionElements = childrenWithAttribute(attribute: "type",
 					value: "option",
 					parent: dynamicElement)
 			
@@ -149,7 +149,7 @@ public class DDLXSDParser {
 			return options.count == 0 ? nil : options
 		}
 
-		if let localizedMetadata = findMetadataElement(dynamicElement,
+                if let localizedMetadata = findMetadataElement(dynamicElement: dynamicElement,
 				locale: locale,
 				defaultLocale: defaultLocale) {
 
@@ -163,7 +163,7 @@ public class DDLXSDParser {
 				locale: locale,
 				defaultLocale: defaultLocale) {
 
-			result["options"] = options
+            result["options"] = options as AnyObject
 		}
 
 		return result
@@ -195,12 +195,12 @@ public class DDLXSDParser {
 			return nil
 		}
 
-		let currentLanguageCode = locale.objectForKey(NSLocaleLanguageCode) as! String
-		let currentCountryCode = locale.objectForKey(NSLocaleCountryCode) as? String
+                let currentLanguageCode = locale.object(forKey: NSLocale.Key.languageCode) as! String
+                let currentCountryCode = locale.object(forKey: NSLocale.Key.countryCode) as? String
 
 		var resultElement:SMXMLElement?
 
-		if let metadataElement = findElementWithAttribute("locale",
+                if let metadataElement = findElementWithAttribute(attribute: "locale",
 				value:locale.localeIdentifier, elements:metadataElements!) {
 			// cases 'a1' and 'b1'
 
@@ -208,7 +208,7 @@ public class DDLXSDParser {
 		}
 		else {
 			if currentCountryCode != nil {
-				if let metadataElement = findElementWithAttribute("locale",
+                if let metadataElement = findElementWithAttribute(attribute: "locale",
 						value:currentLanguageCode,
 						elements:metadataElements!) {
 					// case 'a2'
@@ -223,7 +223,7 @@ public class DDLXSDParser {
 
 			let foundMetadataElements = metadataElements!.filter(
 				{ (metadataElement:SMXMLElement) -> Bool in
-					if let metadataLocale = metadataElement.attributes["locale"]?.description {
+                    if let metadataLocale = (metadataElement.attributes["locale"]? as AnyObject).description {
 						return metadataLocale.hasPrefix(currentLanguageCode + "_")
 					}
 
@@ -236,7 +236,7 @@ public class DDLXSDParser {
 		if resultElement == nil {
 			// Final fallback (a4, b3): find default metadata
 
-			resultElement = findElementWithAttribute("locale",
+            resultElement = findElementWithAttribute(attribute: "locale",
 				value:defaultLocale.localeIdentifier, elements:metadataElements!)
 		}
 

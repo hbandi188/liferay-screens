@@ -123,13 +123,13 @@ class DDLFormSubmitFormInteractor: ServerWriteOperationInteractor {
 			: cacheManager.setClean
 
 		lastCacheKeyUsed = lastCacheKeyUsed
-			?? DDLFormSubmitFormInteractor.cacheKey(submitOp.recordId)
+            ?? DDLFormSubmitFormInteractor.cacheKey(recordId: submitOp.recordId)
 
 		cacheFunction(
-			collection: ScreenletName(DDLFormScreenlet),
-			key: lastCacheKeyUsed!,
-			value: record.values,
-			attributes: cacheAttributes())
+            ScreenletName(klass: DDLFormScreenlet.self),
+            lastCacheKeyUsed!,
+            record.values as NSCoding,
+            cacheAttributes())
 	}
 
 	override func callOnSuccess() {
@@ -147,21 +147,21 @@ class DDLFormSubmitFormInteractor: ServerWriteOperationInteractor {
 				if lastCacheKeyUsed!.hasPrefix("draft-")
 						&& record.recordId == nil {
 					cacheManager.remove(
-						collection: ScreenletName(DDLFormScreenlet),
+                        collection: ScreenletName(klass: DDLFormScreenlet.self),
 						key: lastCacheKeyUsed!)
 				}
 
 				cacheManager.setClean(
-					collection: ScreenletName(DDLFormScreenlet),
-					key: DDLFormSubmitFormInteractor.cacheKey(resultRecordId),
+                    collection: ScreenletName(klass: DDLFormScreenlet.self),
+                    key: DDLFormSubmitFormInteractor.cacheKey(recordId: resultRecordId),
 					attributes: cacheAttributes())
 			}
 			else {
 				// update current cache entry with date sent
 				cacheManager.setClean(
-					collection: ScreenletName(DDLFormScreenlet),
+                    collection: ScreenletName(klass: DDLFormScreenlet.self),
 					key: lastCacheKeyUsed
-						?? DDLFormSubmitFormInteractor.cacheKey(record.recordId),
+                        ?? DDLFormSubmitFormInteractor.cacheKey(recordId: record.recordId),
 					attributes: cacheAttributes())
 			}
 		}
@@ -173,10 +173,10 @@ class DDLFormSubmitFormInteractor: ServerWriteOperationInteractor {
 		let attrs = ["record": record]
 
 		if record.recordId == nil {
-			record.attributes["groupId"] = NSNumber(longLong: self.groupId)
-			record.attributes["recordSetId"] = NSNumber(longLong: self.recordSetId)
+            record.attributes["groupId"] = NSNumber(value: self.groupId)
+            record.attributes["recordSetId"] = NSNumber(value: self.recordSetId)
 			if let userId = self.userId {
-				record.attributes["userId"] = NSNumber(longLong: userId)
+                record.attributes["userId"] = NSNumber(value: userId)
 			}
 		}
 

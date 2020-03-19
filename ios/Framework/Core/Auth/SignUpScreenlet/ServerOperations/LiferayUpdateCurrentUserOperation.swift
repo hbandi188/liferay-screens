@@ -46,13 +46,13 @@ public class LiferayUpdateCurrentUserOperation: ServerOperation {
 		return error
 	}
 
-	override public func doRun(session session: LRSession) {
+    override public func doRun(session: LRSession) {
 		func attributeAsString(key: String) -> String {
-			return SessionContext.userAttribute(key) as! String
+            return SessionContext.userAttribute(key: key) as! String
 		}
 
 		func attributeAsId(key: String) -> Int64 {
-			return Int64(SessionContext.userAttribute(key) as! Int)
+            return Int64(SessionContext.userAttribute(key: key) as! Int)
 		}
 
 
@@ -105,7 +105,7 @@ public class LiferayUpdateCurrentUserOperation: ServerOperation {
 				serviceContext: nil)
 
 			if result["userId"] == nil {
-				lastError = NSError.errorWithCause(.InvalidServerResponse)
+                lastError = NSError.errorWithCause(cause: .InvalidServerResponse)
 				resultUserAttributes = nil
 			}
 			else {

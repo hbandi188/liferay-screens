@@ -21,7 +21,7 @@ public class DDLSubmitButtonTableCell_default: DDLFieldTableCell {
 	//MARK: Actions
 
 	@IBAction private func submitButtonAction(sender: AnyObject) {
-		formView!.userActionWithSender(sender)
+        formView!.userActionWithSender(sender: sender)
 	}
 
 
@@ -30,14 +30,14 @@ public class DDLSubmitButtonTableCell_default: DDLFieldTableCell {
 	override public func awakeFromNib() {
 		super.awakeFromNib()
 
-		setButtonDefaultStyle(submitButton)
+        setButtonDefaultStyle(button: submitButton)
 
 		submitButton?.replaceAttributedTitle(
-				LocalizedString("default", key: "ddlform-submit-button", obj: self),
+            title: LocalizedString(tableName: "default", key: "ddlform-submit-button", obj: self),
 				forState: .Normal)
 	}
 
-	override public func canBecomeFirstResponder() -> Bool {
+    override public var canBecomeFirstResponder: Bool {
 		return false
 	}
 

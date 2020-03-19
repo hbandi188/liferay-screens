@@ -16,7 +16,7 @@ import Foundation
 
 public class DDLFieldStringWithOptions : DDLField {
 
-	public class Option: NSObject, NSCoding {
+    public class Option: NSObject, NSCoding {
 
 		public var label: String
 		public var name: String
@@ -29,17 +29,17 @@ public class DDLFieldStringWithOptions : DDLField {
 		}
 
 		public required convenience init?(coder aDecoder: NSCoder) {
-			let label = aDecoder.decodeObjectForKey("label") as! String
-			let name = aDecoder.decodeObjectForKey("name") as! String
-			let value = aDecoder.decodeObjectForKey("value") as! String
+            let label = aDecoder.decodeObject(forKey: "label") as! String
+            let name = aDecoder.decodeObject(forKey: "name") as! String
+            let value = aDecoder.decodeObject(forKey: "value") as! String
 
 			self.init(label: label, name: name, value: value)
 		}
 
 		public func encodeWithCoder(aCoder: NSCoder) {
-			aCoder.encodeObject(label, forKey: "label")
-			aCoder.encodeObject(name, forKey: "name")
-			aCoder.encodeObject(value, forKey: "value")
+            aCoder.encode(label, forKey: "label")
+            aCoder.encode(name, forKey: "name")
+            aCoder.encode(value, forKey: "value")
 		}
 
 	}
@@ -55,9 +55,9 @@ public class DDLFieldStringWithOptions : DDLField {
 
 		if let optionsArray = (attributes["options"] ?? nil) as? [[String:AnyObject]] {
 			for optionDict in optionsArray {
-				let label = (optionDict["label"] ?? "") as! String
-				let name = (optionDict["name"] ?? "") as! String
-				let value = (optionDict["value"] ?? "") as! String
+				let label = (optionDict["label"] ?? "" as AnyObject) as! String
+				let name = (optionDict["name"] ?? "" as AnyObject) as! String
+				let value = (optionDict["value"] ?? "" as AnyObject) as! String
 
 				let option = Option(label: label, name: name, value: value)
 
@@ -69,17 +69,17 @@ public class DDLFieldStringWithOptions : DDLField {
 	}
 
 	public required init?(coder aDecoder: NSCoder) {
-		multiple = aDecoder.decodeBoolForKey("multiple")
-		options = aDecoder.decodeObjectForKey("options") as! [Option]
+        multiple = aDecoder.decodeBool(forKey: "multiple")
+        options = aDecoder.decodeObject(forKey: "options") as! [Option]
 
 		super.init(coder: aDecoder)
 	}
 
 	public override func encodeWithCoder(aCoder: NSCoder) {
-		super.encodeWithCoder(aCoder)
+        super.encodeWithCoder(aCoder: aCoder)
 
-		aCoder.encodeBool(multiple, forKey: "multiple")
-		aCoder.encodeObject(options, forKey: "options")
+        aCoder.encode(multiple, forKey: "multiple")
+        aCoder.encode(options, forKey: "options")
 	}
 
 
@@ -108,7 +108,7 @@ public class DDLFieldStringWithOptions : DDLField {
 	override internal func convert(fromString value: String?) -> AnyObject? {
 		var result = [Option]()
 
-		if let firstOptionValue = extractOption(value) {
+        if let firstOptionValue = extractOption(options: value) {
 			if let foundOption = findOptionByLabel(firstOptionValue) {
 				result = [foundOption]
 			}
@@ -117,17 +117,17 @@ public class DDLFieldStringWithOptions : DDLField {
 			}
 		}
 
-		return result
+        return result as AnyObject
 	}
 
 	override func convert(fromLabel labels: String?) -> AnyObject? {
-		if let label = extractOption(labels) {
+        if let label = extractOption(options: labels) {
 			if let foundOption = findOptionByLabel(label) {
 				return [foundOption]
 			}
 		}
 
-		return [Option]()
+        return [Option]() as AnyObject
 	}
 
 
@@ -161,7 +161,7 @@ public class DDLFieldStringWithOptions : DDLField {
 	private func extractOption(options: String?) -> String? {
 		if let optionsValue = options {
 			if optionsValue.hasPrefix("[") {
-				return extractFirstOption(optionsValue)
+                return extractFirstOption(options: optionsValue)
 			}
 
 			return optionsValue
@@ -175,15 +175,15 @@ public class DDLFieldStringWithOptions : DDLField {
 		func removeFirstAndLastChars(value: String) -> String {
 			if value.characters.count >= 2 {
 				let range = Range<String.Index>(
-						start: value.startIndex.successor(),
-						end: value.endIndex.predecessor())
+                    value.startIndex.successor(),
+                    in: value.endIndex.predecessor())
 				return value.substringWithRange(range)
 			}
 
 			return value
 		}
 
-		let optionsArray = removeFirstAndLastChars(options).componentsSeparatedByString(",")
+        let optionsArray = removeFirstAndLastChars(value: options).componentsSeparatedByString(",")
 
 		if let firstOption = optionsArray.first {
 			return firstOption.hasPrefix("\"")

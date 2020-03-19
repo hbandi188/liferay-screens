@@ -29,7 +29,7 @@ public class DDLFormView: BaseScreenletView, DDLFormViewModel {
 	public func refresh() {
 	}
 
-	public func validateForm(autoscroll autoscroll: Bool) -> ValidationError? {
+	public func validateForm(autoscroll: Bool) -> ValidationError? {
 		var firstError: ValidationError?
 		var firstFailedField: DDLField?
 
@@ -70,7 +70,7 @@ public class DDLFormView: BaseScreenletView, DDLFormViewModel {
 	internal func changeDocumentUploadStatus(field:DDLFieldDocument) {
 	}
 
-	internal func forEachField(body:DDLField -> Void) {
+	internal func forEachField(body: (DDLField) -> Void) {
 		if let recordValue = record {
 			for field in recordValue.fields {
 				body(field)

@@ -57,7 +57,7 @@ import UIKit
 		}
 	}
 
-	override public func createInteractor(name name: String, sender: AnyObject?) -> Interactor? {
+    override public func createInteractor(name: String, sender: AnyObject?) -> Interactor? {
 		let page = (sender as? Int) ?? 0
 
 		let interactor = createPageLoadInteractor(
@@ -67,7 +67,7 @@ import UIKit
 		paginationInteractors[page] = interactor
 
 		interactor.onSuccess = {
-			self.baseListView.setRows(interactor.resultAllPagesContent!,
+            self.baseListView.setRows(newRows: interactor.resultAllPagesContent!,
 				rowCount: interactor.resultRowCount ?? self.baseListView.rowCount)
 
 			self.onLoadPageResult(
@@ -87,12 +87,12 @@ import UIKit
 		return interactor
 	}
 
-	override public func onAction(name name: String, interactor: Interactor, sender: AnyObject?) -> Bool {
+    override public func onAction(name: String, interactor: Interactor, sender: AnyObject?) -> Bool {
 
 		let result = super.onAction(name: name, interactor: interactor, sender: sender)
 
 		if result && name == BaseListScreenlet.LoadInitialPageAction {
-			self.baseListView.setRows([], rowCount:0)
+            self.baseListView.setRows(newRows: [], rowCount:0)
 		}
 
 		return result
@@ -106,14 +106,14 @@ import UIKit
 	}
 
 	public func refreshList() -> Bool {
-		return performAction(name: BaseListScreenlet.LoadPageAction, sender: 0)
+        return performAction(name: BaseListScreenlet.LoadPageAction, sender: 0 as AnyObject)
 	}
 
 	public func loadPageForRow(row: Int) {
-		let page = pageFromRow(row)
+        let page = pageFromRow(row: row)
 
 		// make sure we don't create two interactors for the same page
-		synchronized(paginationInteractors) {
+        synchronized(lock: paginationInteractors) {
 			if self.paginationInteractors.indexForKey(page) == nil {
 				self.performAction(name: BaseListScreenlet.LoadPageAction, sender: page)
 			}
@@ -138,18 +138,18 @@ import UIKit
 
 
 	public func createPageLoadInteractor(
-			page page: Int,
+        page: Int,
 			computeRowCount: Bool)
 			-> BaseListPageLoadInteractor {
 
 		fatalError("createPageLoadInteractor must be overriden")
 	}
 
-	public func onLoadPageError(page page: Int, error: NSError) {
+    public func onLoadPageError(page: Int, error: NSError) {
 		print("ERROR: Load page error \(page) -> \(error)\n")
 	}
 
-	public func onLoadPageResult(page page: Int, rows: [AnyObject], rowCount: Int) {
+    public func onLoadPageResult(page: Int, rows: [AnyObject], rowCount: Int) {
 	}
 
 	public func onSelectedRow(row:AnyObject) {

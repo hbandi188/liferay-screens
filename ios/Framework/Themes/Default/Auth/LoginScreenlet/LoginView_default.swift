@@ -27,8 +27,8 @@ public class LoginView_default: BaseScreenletView, LoginViewModel {
 	override public var progressMessages: [String:ProgressMessages] {
 		return [
 			BaseScreenlet.DefaultAction :
-				[.Working : LocalizedString("default", key: "login-loading-message", obj: self),
-				.Failure : LocalizedString("default", key: "login-loading-error", obj: self)]]
+                [.Working : LocalizedString(tableName: "default", key: "login-loading-message", obj: self),
+                 .Failure : LocalizedString(tableName: "default", key: "login-loading-error", obj: self)]]
 	}
 
 
@@ -38,7 +38,7 @@ public class LoginView_default: BaseScreenletView, LoginViewModel {
 		didSet {
 			setBasicAuthMethodStyles(
 					view: self,
-					basicAuthMethod: BasicAuthMethod.create(basicAuthMethod),
+                    basicAuthMethod: BasicAuthMethod.create(text: basicAuthMethod),
 					userNameField: userNameField,
 					userNameIcon: userNameIcon)
 		}
@@ -55,7 +55,7 @@ public class LoginView_default: BaseScreenletView, LoginViewModel {
 
 	public var userName: String? {
 		get {
-			return nullIfEmpty(userNameField.text)
+            return nullIfEmpty(string: userNameField.text)
 		}
 		set {
 			userNameField?.text = newValue
@@ -64,7 +64,7 @@ public class LoginView_default: BaseScreenletView, LoginViewModel {
 
 	public var password: String? {
 		get {
-			return nullIfEmpty(passwordField.text)
+            return nullIfEmpty(string: passwordField.text)
 		}
 		set {
 			passwordField?.text = newValue
@@ -77,33 +77,33 @@ public class LoginView_default: BaseScreenletView, LoginViewModel {
 	override public func onCreated() {
 		super.onCreated()
 
-		setButtonDefaultStyle(loginButton)
-		setButtonDefaultStyle(authorizeButton)
+        setButtonDefaultStyle(button: loginButton)
+        setButtonDefaultStyle(button: authorizeButton)
 
-		configureAuthType()
+		configureAuthType()as AnyObject
 	}
 
 	override public func onSetTranslations() {
-		userNameField?.placeholder = LocalizedString("default",
-			key: BasicAuthMethod.create(basicAuthMethod).description, obj: self)
+        userNameField?.placeholder = LocalizedString(tableName: "default",
+                                                     key: BasicAuthMethod.create(text: basicAuthMethod).description, obj: self)
 
-		passwordField?.placeholder = LocalizedString("default", key: "password-placeholder", obj: self)
+        passwordField?.placeholder = LocalizedString(tableName: "default", key: "password-placeholder", obj: self)
 
-		loginButton?.replaceAttributedTitle(LocalizedString("default", key: "signin-button", obj: self),
+        loginButton?.replaceAttributedTitle(title: LocalizedString(tableName: "default", key: "signin-button", obj: self),
 				forState: .Normal)
 
-		authorizeButton?.replaceAttributedTitle(LocalizedString("default", key: "authorize-button", obj: self),
+        authorizeButton?.replaceAttributedTitle(title: LocalizedString(tableName: "default", key: "authorize-button", obj: self),
 				forState: .Normal)
 	}
 
 	override public func onStartInteraction() {
-		loginButton?.enabled = false
-		authorizeButton?.enabled = false
+        loginButton?.isEnabled = false
+        authorizeButton?.isEnabled = false
 	}
 
 	override public func onFinishInteraction(result: AnyObject?, error: NSError?) {
-		loginButton?.enabled = true
-		authorizeButton?.enabled = true
+        loginButton?.isEnabled = true
+        authorizeButton?.isEnabled = true
 	}
 
 	override public func createProgressPresenter() -> ProgressPresenter {
@@ -114,8 +114,8 @@ public class LoginView_default: BaseScreenletView, LoginViewModel {
 	//MARK: UITextFieldDelegate
 
 	internal func textFieldShouldBeginEditing(textField: UITextField!) -> Bool {
-		userNameBackground?.highlighted = (textField == userNameField);
-		passwordBackground?.highlighted = (textField == passwordField);
+        userNameBackground?.isHighlighted = (textField == userNameField);
+        passwordBackground?.isHighlighted = (textField == passwordField);
 
 		return true
 	}
@@ -123,8 +123,8 @@ public class LoginView_default: BaseScreenletView, LoginViewModel {
 	public func configureAuthType() {
 		let auth = AuthType(rawValue: authType!) ?? .Basic
 
-		authorizeButton?.hidden = (auth != .OAuth)
-		loginButton?.superview?.hidden = (auth != .Basic)
+        authorizeButton?.isHidden = (auth != .OAuth)
+        loginButton?.superview?.isHidden = (auth != .Basic)
 	}
 
 }

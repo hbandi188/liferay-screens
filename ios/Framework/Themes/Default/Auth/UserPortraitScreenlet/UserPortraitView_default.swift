@@ -19,11 +19,11 @@ import UIKit
 
 
 // Global initial load
-private func loadPlaceholderCache(done: (UIImage? -> ())? = nil) -> UIImage? {
+private func loadPlaceholderCache(done: ((UIImage?) -> ())? = nil) -> UIImage? {
 	var image: UIImage?
 
 	dispatch_async {
-		image = NSBundle.imageInBundles(
+        image = Bundle.imageInBundles(
 			name: "default-portrait-placeholder",
 			currentClass: UserPortraitView_default.self)
 
@@ -57,12 +57,12 @@ public class UserPortraitView_default: BaseScreenletView,
 	}
 	public var borderColor: UIColor? {
 		didSet {
-			portraitImage?.layer.borderColor = (borderColor ?? DefaultThemeBasicBlue).CGColor
+            portraitImage?.layer.borderColor = (borderColor ?? DefaultThemeBasicBlue).cgColor
 		}
 	}
 	override public var editable: Bool {
 		didSet {
-			self.editButton.hidden = !editable
+            self.editButton.isHidden = !editable
 			if editable {
 				self.superview?.clipsToBounds = false
 			}
@@ -90,7 +90,7 @@ public class UserPortraitView_default: BaseScreenletView,
 			],
 			"upload-portrait" : [
 				.Working : "",
-				.Failure : LocalizedString("default", key: "userportrait-uploading-error", obj: self)
+                .Failure : LocalizedString(tableName: "default", key: "userportrait-uploading-error", obj: self)
 			]]
 	}
 
@@ -108,26 +108,26 @@ public class UserPortraitView_default: BaseScreenletView,
 
 		imagePicker.delegate = self
 		imagePicker.allowsEditing = true
-		imagePicker.modalPresentationStyle = .FullScreen
+        imagePicker.modalPresentationStyle = .fullScreen
 	}
 
 	override public func onShow() {
 		portraitImage?.layer.borderWidth = borderWidth
-		portraitImage?.layer.borderColor = (borderColor ?? DefaultThemeBasicBlue).CGColor
+        portraitImage?.layer.borderColor = (borderColor ?? DefaultThemeBasicBlue).cgColor
 		portraitImage?.layer.cornerRadius = DefaultThemeButtonCornerRadius
 	}
 
-	override public func onPreAction(name name: String, sender: AnyObject?) -> Bool {
+    override public func onPreAction(name: String, sender: AnyObject?) -> Bool {
 		if name == "edit-portrait" {
-			let takeNewPicture = LocalizedString("default", key: "userportrait-take-new-picture", obj: self)
-			let chooseExisting = LocalizedString("default", key: "userportrait-choose-existing-picture", obj: self)
+            let takeNewPicture = LocalizedString(tableName: "default", key: "userportrait-take-new-picture", obj: self)
+            let chooseExisting = LocalizedString(tableName: "default", key: "userportrait-choose-existing-picture", obj: self)
 
 			let sheet = UIActionSheet(
 				title: "Change portrait",
 				delegate: self,
 				cancelButtonTitle: "Cancel",
 				destructiveButtonTitle: nil, otherButtonTitles: takeNewPicture, chooseExisting)
-			sheet.showInView(self)
+            sheet.show(in: self)
 
 			return false
 		}
@@ -136,25 +136,25 @@ public class UserPortraitView_default: BaseScreenletView,
 	}
 
 	public func actionSheet(
-			actionSheet: UIActionSheet,
-			clickedButtonAtIndex buttonIndex: Int) {
+        _ actionSheet: UIActionSheet,
+        clickedButtonAt buttonIndex: Int) {
 
 		let newPicture = 1
 		let chooseExisting = 2
 
 		switch buttonIndex {
 		case newPicture:
-			imagePicker.sourceType = .Camera
+            imagePicker.sourceType = .camera
 
 		case chooseExisting:
-			imagePicker.sourceType = .SavedPhotosAlbum
+            imagePicker.sourceType = .savedPhotosAlbum
 
 		default:
 			return
 		}
 
 		if let vc = self.presentingViewController {
-			vc.presentViewController(imagePicker, animated: true, completion: {})
+            vc.present(imagePicker, animated: true, completion: {})
 		}
 		else {
 			print("ERROR: You neet to set the presentingViewController before using UIActionSheet\n")
@@ -176,20 +176,17 @@ public class UserPortraitView_default: BaseScreenletView,
 
 
 	//MARK: UIImagePickerControllerDelegate
+    
+    public func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        let editedImage = info[UIImagePickerController.InfoKey.editedImage] as? UIImage
 
-	public func imagePickerController(
-			picker: UIImagePickerController,
-			didFinishPickingMediaWithInfo info: [String : AnyObject]) {
+        imagePicker.dismiss(animated: true) {}
 
-		let editedImage = info[UIImagePickerControllerEditedImage] as? UIImage
+        userAction(name: "upload-portrait", sender: editedImage)
+    }
 
-		imagePicker.dismissViewControllerAnimated(true) {}
-
-		userAction(name: "upload-portrait", sender: editedImage)
-	}
-
-	public func imagePickerControllerDidCancel(picker: UIImagePickerController) {
-		imagePicker.dismissViewControllerAnimated(true) {}
+    public func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        imagePicker.dismiss(animated: true) {}
 	}
 
 }

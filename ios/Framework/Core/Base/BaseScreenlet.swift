@@ -17,7 +17,7 @@ import QuartzCore
 
 @objc public protocol BaseScreenletDelegate {
 
-	optional func screenlet(screenlet: BaseScreenlet,
+    @objc optional func screenlet(screenlet: BaseScreenlet,
 		customInteractorForAction: String,
 		withSender: AnyObject?) -> Interactor?
 
@@ -36,7 +36,7 @@ import QuartzCore
 
 	@IBInspectable public var themeName: String? {
 		set {
-			_themeName = (newValue ?? "default").lowercaseString
+            _themeName = (newValue ?? "default").lowercased()
 
 			if _runningOnInterfaceBuilder {
 				_themeName = updateCurrentPreviewImage()
@@ -123,13 +123,13 @@ import QuartzCore
 
 		if let viewValue = view {
 			//FIXME: full-autoresize value. Extract from UIViewAutoresizing
-			let flexibleMask = UIViewAutoresizing(rawValue: 18)
+            let flexibleMask = UIView.AutoresizingMask(rawValue: 18)
 
 			if viewValue.autoresizingMask == flexibleMask {
 				viewValue.frame = self.bounds
 			}
 			else {
-				viewValue.frame = centeredRectInView(self, size: viewValue.frame.size)
+                viewValue.frame = centeredRectInView(view: self, size: viewValue.frame.size)
 			}
 
 			viewValue.onPerformAction = { [weak self] name, sender in
@@ -150,10 +150,10 @@ import QuartzCore
 	}
 
 	internal func previewImageForTheme(themeName:String) -> UIImage? {
-		let bundles = NSBundle.allBundles(self.dynamicType)
+        let bundles = Bundle.allBundles(type(of: self))
 
 		for b in bundles {
-			let imageName = "\(themeName)-preview-\(ScreenletName(self.dynamicType).lowercaseString)@2x"
+			let imageName = "\(themeName)-preview-\(ScreenletName(type(of: self)).lowercaseString)@2x"
 
 			if let imagePath = b.pathForResource(imageName, ofType: "png") {
 				if let imageData = NSData(contentsOfFile: imagePath) {
@@ -201,10 +201,10 @@ import QuartzCore
 	 * Typically, it's called from TouchUpInside UI event or when the programmer wants to
 	 * start the interaction programatically.
 	 */
-	public func performAction(name name: String, sender: AnyObject? = nil) -> Bool {
+    public func performAction(name: String, sender: AnyObject? = nil) -> Bool {
 		let result: Bool
 
-		let customInteractor = self.delegate?.screenlet?(self,
+        let customInteractor = self.delegate?.screenlet?(screenlet: self,
 				customInteractorForAction: name,
 				withSender: sender)
 
@@ -213,10 +213,10 @@ import QuartzCore
 				sender: sender)
 
 		if let interactor = customInteractor ?? standardInteractor {
-			trackInteractor(interactor, withName: name)
+            trackInteractor(interactor: interactor, withName: name)
 
-			if let message = screenletView?.progressMessageForAction(name, messageType: .Working) {
-				showHUDWithMessage(message,
+            if let message = screenletView?.progressMessageForAction(actionName: name, messageType: .Working) {
+                showHUDWithMessage(message: message,
 					closeMode: .ManualClose,
 					spinnerMode: .IndeterminateSpinner)
 			}
@@ -238,7 +238,7 @@ import QuartzCore
 	/*
 	 * onAction is invoked when an interaction should be started
 	 */
-	public func onAction(name name: String, interactor: Interactor, sender: AnyObject?) -> Bool {
+    public func onAction(name: String, interactor: Interactor, sender: AnyObject?) -> Bool {
 		onStartInteraction()
 		screenletView?.onStartInteraction()
 
@@ -248,7 +248,7 @@ import QuartzCore
 	public func isActionRunning(name: String) -> Bool {
 		var firstInteractor: Interactor? = nil
 
-		synchronized(_runningInteractors) {
+        synchronized(lock: _runningInteractors) {
 			firstInteractor = self._runningInteractors[name]?.first
 		}
 
@@ -263,7 +263,7 @@ import QuartzCore
 		}
 	}
 
-	public func createInteractor(name name: String, sender: AnyObject?) -> Interactor? {
+    public func createInteractor(name: String, sender: AnyObject?) -> Interactor? {
 		return nil
 	}
 
@@ -289,12 +289,12 @@ import QuartzCore
 
 			if msg == nil {
 				msg = screenletView?.progressMessageForAction(
-					interactor.actionName ?? BaseScreenlet.DefaultAction,
+                    actionName: interactor.actionName ?? BaseScreenlet.DefaultAction,
 					messageType: messageType)
 			}
 
-			if let msg = msg, closeMode = closeMode {
-				showHUDWithMessage(msg,
+			if let msg = msg, let closeMode = closeMode {
+                showHUDWithMessage(message: msg,
 					closeMode: closeMode,
 					spinnerMode: .NoSpinner)
 			}
@@ -303,13 +303,13 @@ import QuartzCore
 			}
 		}
 
-		untrackInteractor(interactor)
+        untrackInteractor(interactor: interactor)
 
 		let result: AnyObject? = interactor.interactionResult()
-		onFinishInteraction(result, error: error)
-		screenletView?.onFinishInteraction(result, error: error)
+        onFinishInteraction(result: result, error: error)
+        screenletView?.onFinishInteraction(result: result, error: error)
 
-		hideInteractorHUD(error)
+        hideInteractorHUD(error: error)
 	}
 
 	/**
@@ -333,16 +333,16 @@ import QuartzCore
 
 			assert(_progressPresenter != nil, "ProgressPresenter must exist")
 
-			_progressPresenter!.showHUDInView(rootView(self),
+            _progressPresenter!.showHUDInView(view: rootView(currentView: self),
 				message: message,
 				closeMode: closeMode,
 				spinnerMode: spinnerMode)
 	}
 
-	public func showHUDAlert(message message: String) {
+    public func showHUDAlert(message: String) {
 		assert(_progressPresenter != nil, "ProgressPresenter must exist")
 
-		_progressPresenter!.showHUDInView(rootView(self),
+        _progressPresenter!.showHUDInView(view: rootView(currentView: self),
 			message: message,
 			closeMode: .ManualClose_TouchClosable,
 			spinnerMode: .NoSpinner)
@@ -359,27 +359,27 @@ import QuartzCore
 
 	private func createScreenletViewFromNib() -> BaseScreenletView? {
 
-		func tryLoadForTheme(themeName: String, inBundles bundles: [NSBundle]) -> BaseScreenletView? {
+        func tryLoadForTheme(themeName: String, inBundles bundles: [Bundle]) -> BaseScreenletView? {
 			for bundle in bundles {
-				let viewName = "\(ScreenletName(self.dynamicType))View"
+                let viewName = "\(ScreenletName(klass: type(of: self)))View"
 				let nibName = "\(viewName)_\(themeName)"
-				let nibPath = bundle.pathForResource(nibName, ofType:"nib")
+                let nibPath = bundle.path(forResource: nibName, ofType:"nib")
 
 				if nibPath != nil {
 					let views = bundle.loadNibNamed(nibName,
 						owner:self,
 						options:nil)
 
-					assert(views.count > 0, "Malformed xib \(nibName). Without views")
+                    assert(views?.count ?? 0 > 0, "Malformed xib \(nibName). Without views")
 
-					return (views[0] as? BaseScreenletView)
+                    return (views?[0] as? BaseScreenletView)
 				}
 			}
 
 			return nil;
 		}
 
-		let bundles = NSBundle.allBundles(self.dynamicType);
+        let bundles = Bundle.allBundles(type(of: self));
 
 		if let foundView = tryLoadForTheme(_themeName, inBundles: bundles) {
 			return foundView
@@ -389,7 +389,7 @@ import QuartzCore
 			return foundView
 		}
 
-		print("ERROR: Xib file doesn't found for screenlet '\(ScreenletName(self.dynamicType))' and theme '\(_themeName)'\n")
+        print("ERROR: Xib file doesn't found for screenlet '\(ScreenletName(klass: type(of: self)))' and theme '\(_themeName)'\n")
 
 		return nil
 	}
@@ -397,9 +397,9 @@ import QuartzCore
 	private func updateCurrentPreviewImage() -> String {
 		var appliedTheme = _themeName
 
-		_currentPreviewImage = previewImageForTheme(_themeName)
+        _currentPreviewImage = previewImageForTheme(themeName: _themeName)
 		if _currentPreviewImage == nil {
-			if let previewImage = previewImageForTheme("default") {
+            if let previewImage = previewImageForTheme(themeName: "default") {
 				_currentPreviewImage = previewImage
 				appliedTheme = "default"
 			}
@@ -410,8 +410,8 @@ import QuartzCore
 		}
 
 		if let currentPreviewImageValue = _currentPreviewImage {
-			_previewLayer!.frame = centeredRectInView(self, size: currentPreviewImageValue.size)
-			_previewLayer!.contents = currentPreviewImageValue.CGImage
+            _previewLayer!.frame = centeredRectInView(view: self, size: currentPreviewImageValue.size)
+            _previewLayer!.contents = currentPreviewImageValue.cgImage
 
 			if _previewLayer!.superlayer != layer {
 				layer.addSublayer(_previewLayer!)
@@ -431,11 +431,11 @@ import QuartzCore
 			return currentView;
 		}
 
-		return rootView(currentView.superview!)
+        return rootView(currentView: currentView.superview!)
 	}
 
 	private func trackInteractor(interactor: Interactor, withName name: String) {
-		synchronized(_runningInteractors) {
+        synchronized(lock: _runningInteractors) {
 			var interactors = self._runningInteractors[name]
 			if interactors?.count ?? 0 == 0 {
 				interactors = [Interactor]()
@@ -449,7 +449,7 @@ import QuartzCore
 	}
 
 	private func untrackInteractor(interactor: Interactor) {
-		synchronized(_runningInteractors) {
+        synchronized(lock: _runningInteractors) {
 			let name = interactor.actionName!
 			let interactors = self._runningInteractors[name] ?? []
 

@@ -22,7 +22,7 @@ public class DDLFieldDateTableCell_default: DDLBaseFieldTextboxTableCell_default
 
 	@IBOutlet public var chooseButton: UIButton? {
 		didSet {
-			setButtonDefaultStyle(chooseButton)
+            setButtonDefaultStyle(button: chooseButton)
 		}
 	}
 
@@ -40,7 +40,7 @@ public class DDLFieldDateTableCell_default: DDLBaseFieldTextboxTableCell_default
 		super.onChangedField()
 
 		if let fieldValue = field {
-			setFieldPresenter(fieldValue)
+            setFieldPresenter(field: fieldValue)
 
 			if fieldValue.currentValue != nil {
 				textField?.text = fieldValue.currentValueAsLabel
@@ -57,7 +57,7 @@ public class DDLFieldDateTableCell_default: DDLBaseFieldTextboxTableCell_default
 			field.currentValue = selectedDate
 			textField!.text = field.currentValueAsLabel
 
-			let fullRange = NSMakeRange(0, (textField!.text!).characters.count)
+			let fullRange = NSMakeRange(0, (textField!.text!).count)
 
 			textField(textField!,
 				shouldChangeCharactersInRange: fullRange,

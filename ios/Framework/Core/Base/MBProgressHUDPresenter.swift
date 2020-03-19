@@ -51,10 +51,10 @@ import Foundation
 
 		dispatch_main {
 			if self.instance == nil {
-				self.instance = MBProgressHUD.showHUDAddedTo(view, animated:true)
+                self.instance = MBProgressHUD.showAdded(to: view, animated:true)
 			}
 
-			self.configureAndShowHUD(self.instance!,
+            self.configureAndShowHUD(hud: self.instance!,
 				message: message,
 				closeMode: closeMode,
 				spinnerMode: spinnerMode)
@@ -75,7 +75,7 @@ import Foundation
 		hud.color = customColor
 		hud.opacity = customOpacity
 
-		hud.mode = spinnerModeToProgressModeHUD(spinnerMode)
+        hud.mode = spinnerModeToProgressModeHUD(spinnerMode: spinnerMode)
 		hud.minShowTime = 0.5
 
 		if closeMode == .ManualClose_TouchClosable
@@ -83,10 +83,10 @@ import Foundation
 			hud.addGestureRecognizer(
 				UITapGestureRecognizer(
 					target: self,
-					action: "simpleTapDetected:"))
+                    action: Selector(("simpleTapDetected:"))))
 		}
 
-		let components = message?.componentsSeparatedByCharactersInSet(NSCharacterSet.newlineCharacterSet())
+        let components = message?.components(separatedBy: NSCharacterSet.newlines)
 
 		if let components = components {
 			hud.labelText = components[0]
@@ -97,8 +97,8 @@ import Foundation
 
 		if closeMode == .Autoclose_TouchClosable {
 			// compute autodelay based on text's length
-			let len = (hud.labelText ?? "").characters.count
-				+ (hud.detailsLabelText ?? "").characters.count
+			let len = (hud.labelText ?? "").count
+				+ (hud.detailsLabelText ?? "").count
 
 			let closeDelay = 1.5 + (Double(len) * 0.01)
 
@@ -114,17 +114,17 @@ import Foundation
 			return currentView;
 		}
 		
-		return rootView(currentView.superview!)
+        return rootView(currentView: currentView.superview!)
 	}
 
 	private func spinnerModeToProgressModeHUD(spinnerMode: ProgressSpinnerMode) -> MBProgressHUDMode {
 		switch spinnerMode {
 		case .IndeterminateSpinner:
-			return .Indeterminate
+            return .indeterminate
 		case .DeterminateSpinner:
-			return .Determinate
+            return .determinate
 		case .NoSpinner:
-			return .Text
+            return .text
 		}
 	}
 

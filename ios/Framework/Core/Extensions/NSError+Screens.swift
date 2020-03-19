@@ -25,11 +25,11 @@ public class ValidationError : NSError {
 	}
 
 	public convenience init(_ key: String, _ message: String) {
-		self.init(LocalizedString(key, key: message, obj: dummyObject))
+        self.init(LocalizedString(tableName: key, key: message, obj: dummyObject))
 	}
 
 	public convenience init(_ key: String, _ message: String, _ bundleObject: AnyObject) {
-		self.init(LocalizedString(key, key: message, obj: bundleObject))
+        self.init(LocalizedString(tableName: key, key: message, obj: bundleObject))
 	}
 
 	required public init?(coder aDecoder: NSCoder) {
@@ -51,7 +51,7 @@ public enum ScreensErrorCause: Int {
 
 public extension NSError {
 
-	public class func errorWithCause(
+    class func errorWithCause(
 			cause: ScreensErrorCause,
 			userInfo: [NSObject : AnyObject]? = nil)
 			-> NSError {
@@ -59,10 +59,10 @@ public extension NSError {
 		return NSError(
 				domain: "LiferayScreens",
 				code: cause.rawValue,
-				userInfo: userInfo)
+                userInfo: userInfo as! [String : Any])
 }
 
-	public class func errorWithCause(
+    class func errorWithCause(
 			cause: ScreensErrorCause,
 			message: String)
 			-> NSError {

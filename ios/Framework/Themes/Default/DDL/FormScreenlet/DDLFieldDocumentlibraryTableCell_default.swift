@@ -25,7 +25,7 @@ public class DDLFieldDocumentlibraryTableCell_default: DDLBaseFieldTextboxTableC
 
 	@IBOutlet public var chooseButton: UIButton? {
 		didSet {
-			setButtonDefaultStyle(chooseButton)
+            setButtonDefaultStyle(button: chooseButton)
 		}
 	}
 
@@ -66,7 +66,7 @@ public class DDLFieldDocumentlibraryTableCell_default: DDLBaseFieldTextboxTableC
 			DDLFieldDocument.UploadStatus.Uploading(0,0) :
 					DefaultThemeBasicBlue,
 			DDLFieldDocument.UploadStatus.Uploaded([:]) :
-					UIColor.clearColor(),
+                UIColor.clearColor,
 			DDLFieldDocument.UploadStatus.Failed(nil) :
 					UIColor.clearColor()
 		]
@@ -89,11 +89,11 @@ public class DDLFieldDocumentlibraryTableCell_default: DDLBaseFieldTextboxTableC
 
 			presenterViewController.selectedDocumentClosure = selectedDocumentClosure
 
-			setFieldPresenter(docField)
-			setProgress(docField)
+            setFieldPresenter(field: docField)
+            setProgress(field: docField)
 
 			if field!.lastValidationResult != nil {
-				onPostValidation(field!.lastValidationResult!)
+                onPostValidation(valid: field!.lastValidationResult!)
 			}
 		}
 	}
@@ -136,18 +136,18 @@ public class DDLFieldDocumentlibraryTableCell_default: DDLBaseFieldTextboxTableC
 	private func setProgress(field: DDLFieldDocument) {
 		let theme = progress!.theme
 
-		theme.font = UIFont(descriptor: textField!.font!.fontDescriptor(), size: 30.0)
+        theme.font = UIFont(descriptor: (textField!.font! as AnyObject).fontDescriptor(), size: 30.0)
 
 		theme.sliceDividerHidden = true
 		theme.thickness = 10.0
 
 		progress!.theme = theme
 
-		changeDocumentUploadStatus(field)
+        changeDocumentUploadStatus(field: field)
 	}
 
-	private func changeProgressVisilibity(show show: Bool, delay: Double = 0.0) {
-		UIView.animateWithDuration(0.3, delay: delay, options: [], animations: {
+    private func changeProgressVisilibity(show: Bool, delay: Double = 0.0) {
+        UIView.animate(withDuration: 0.3, delay: delay, options: [], animations: {
 			self.progress!.alpha = show ? 1.0 : 0.0
 			self.chooseButton!.alpha = show ? 0.0 : 1.0
 		}, completion: nil)

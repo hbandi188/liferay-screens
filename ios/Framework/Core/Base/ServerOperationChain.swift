@@ -18,11 +18,11 @@ import UIKit
 
 	private struct StreamOperationsQueue {
 
-		static private var queue: NSOperationQueue?
+        static private var queue: OperationQueue?
 
-		static func addOperation(operation: NSOperation) {
+        static func addOperation(operation: Operation) {
 			if queue == nil {
-				queue = NSOperationQueue()
+                queue = OperationQueue()
 				queue!.maxConcurrentOperationCount = 1
 			}
 
@@ -51,12 +51,12 @@ import UIKit
 		return headOperation.createSession()
 	}
 
-	override public func enqueue(onComplete: (ServerOperation -> Void)?) {
+	override public func enqueue(onComplete: ((ServerOperation) -> Void)?) {
 		if onComplete != nil {
 			self.onComplete = onComplete
 		}
 
-		StreamOperationsQueue.addOperation(self)
+        StreamOperationsQueue.addOperation(operation: self)
 	}
 
 	private func doStep(
@@ -88,16 +88,16 @@ import UIKit
 		}
 	}
 
-	override public func doRun(session session: LRSession) {
-		let waitGroup = dispatch_group_create()
+    override public func doRun(session: LRSession) {
+        let waitGroup = DispatchGroup()
 
-		dispatch_group_enter(waitGroup)
+        waitGroup.enter()
 
 		if let validationError = doStep(0, headOperation, waitGroup) {
 			self.lastError = validationError
 		}
 
-		dispatch_group_wait(waitGroup, DISPATCH_TIME_FOREVER)
+        waitGroup.wait(timeout: dispatch_time_t(DispatchTime.distantFuture))
 	}
 
 	override public func callOnComplete() {

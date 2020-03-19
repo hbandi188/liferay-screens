@@ -36,7 +36,7 @@ public class LiferayDDLFormLoadOperation: ServerOperation {
 		return error
 	}
 
-	override public func doRun(session session: LRSession) {
+    override public func doRun(session: LRSession) {
 		let service = LRDDMStructureService_v62(session: session)
 
 		do {
@@ -53,7 +53,7 @@ public class LiferayDDLFormLoadOperation: ServerOperation {
 				lastError = nil
 			}
 			else {
-				lastError = NSError.errorWithCause(.InvalidServerResponse)
+                lastError = NSError.errorWithCause(cause: .InvalidServerResponse)
 				resultRecord = nil
 				resultUserId = nil
 			}

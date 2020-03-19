@@ -36,16 +36,16 @@ public class LiferayWebContentLoadBaseOperation: ServerOperation {
 		return error
 	}
 
-	override public func doRun(session session: LRSession) {
+    override public func doRun(session: LRSession) {
 		resultHTML = nil
 
 		var result: String?
 
 		if templateId ?? 0 != 0 {
-			result = doGetJournalArticleWithTemplate(templateId!, session: session)
+            result = doGetJournalArticleWithTemplate(templateId: templateId!, session: session)
 		}
 		else {
-			result = doGetJournalArticle(session)
+            result = doGetJournalArticle(session: session)
 		}
 
 		if lastError == nil {
@@ -53,7 +53,7 @@ public class LiferayWebContentLoadBaseOperation: ServerOperation {
 				resultHTML = result
 			}
 			else {
-				lastError = NSError.errorWithCause(.InvalidServerResponse)
+                lastError = NSError.errorWithCause(cause: .InvalidServerResponse)
 			}
 		}
 	}

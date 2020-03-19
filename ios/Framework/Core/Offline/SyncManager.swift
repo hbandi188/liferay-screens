@@ -26,36 +26,36 @@ import Foundation
 
 @objc public protocol SyncManagerDelegate {
 
-	optional func syncManager(manager: SyncManager,
+    @objc optional func syncManager(manager: SyncManager,
 		itemsCount: UInt)
 
-	optional func syncManager(manager: SyncManager,
+    @objc optional func syncManager(manager: SyncManager,
 		onItemSyncScreenlet screenlet: String,
 		startKey: String,
 		attributes: [String:AnyObject])
 
-	optional func syncManager(manager: SyncManager,
+    @objc optional func syncManager(manager: SyncManager,
 		onItemSyncScreenlet screenlet: String,
 		completedKey: String,
 		attributes: [String:AnyObject])
 
-	optional func syncManager(manager: SyncManager,
+    @objc optional func syncManager(manager: SyncManager,
 		onItemSyncScreenlet screenlet: String,
 		failedKey: String,
 		attributes: [String:AnyObject],
 		error: NSError)
 
-	optional func syncManager(manager: SyncManager,
+    @objc optional func syncManager(manager: SyncManager,
 		onItemSyncScreenlet screenlet: String,
 		conflictedKey: String,
 		remoteValue: AnyObject,
 		localValue: AnyObject,
-		resolve: SyncConflictResolution -> ())
+		resolve: (SyncConflictResolution) -> ())
 
 }
 
 
-public typealias OfflineSynchronizer = (String, [String:AnyObject]) -> Signal -> ()
+public typealias OfflineSynchronizer = (String, [String:AnyObject]) -> (Signal) -> ()
 
 
 @objc public class SyncManager: NSObject {
@@ -64,26 +64,26 @@ public typealias OfflineSynchronizer = (String, [String:AnyObject]) -> Signal ->
 
 	public let cacheManager: CacheManager
 
-	private let syncQueue: NSOperationQueue
+    private let syncQueue: OperationQueue
 	private var synchronizers: [String:OfflineSynchronizer] = [:]
 
 
 	public init(cacheManager: CacheManager) {
 		self.cacheManager = cacheManager
 
-		self.syncQueue = NSOperationQueue()
+        self.syncQueue = OperationQueue()
 		self.syncQueue.maxConcurrentOperationCount = 1
 
 		super.init()
 
-		synchronizers[ScreenletName(UserPortraitScreenlet)] =  userPortraitSynchronizer
-		synchronizers[ScreenletName(DDLFormScreenlet)] =  formSynchronizer
+        synchronizers[ScreenletName(klass: UserPortraitScreenlet.self)] =  userPortraitSynchronizer
+        synchronizers[ScreenletName(klass: DDLFormScreenlet.self)] =  formSynchronizer
 	}
 
 	public func addSynchronizer(
 			screenletClass: AnyClass,
-			synchronizer: OfflineSynchronizer) {
-		synchronizers[ScreenletName(screenletClass)] = synchronizer
+            synchronizer: @escaping OfflineSynchronizer) {
+        synchronizers[ScreenletName(klass: screenletClass)] = synchronizer
 	}
 
 	public func clear() {
@@ -92,16 +92,12 @@ public typealias OfflineSynchronizer = (String, [String:AnyObject]) -> Signal ->
 
 	public func startSync() {
 		cacheManager.countPendingToSync { count in
-			self.delegate?.syncManager?(self, itemsCount: count)
+            self.delegate?.syncManager?(manager: self, itemsCount: count)
 
 			if count > 0 {
 				self.cacheManager.pendingToSync { (screenlet, key, attributes) -> Bool in
-					self.delegate?.syncManager?(self,
-						onItemSyncScreenlet: screenlet,
-						startKey: key,
-						attributes: attributes)
-
-					self.enqueueSyncForScreenlet(screenlet, key, attributes)
+                    self.delegate?.syncManager?(manager: self, onItemSyncScreenlet: screenlet, startKey: key, attributes: attributes)
+                    self.enqueueSyncForScreenlet(screenletName: screenlet, key, attributes)
 
 					return true
 				}
@@ -120,7 +116,7 @@ public typealias OfflineSynchronizer = (String, [String:AnyObject]) -> Signal ->
 		interactor.cacheStrategy = .CacheFirst
 
 		interactor.onSuccess = {
-			self.delegate?.syncManager?(self,
+            self.delegate?.syncManager?(manager: self,
 				onItemSyncScreenlet: screenletClassName,
 				completedKey: key,
 				attributes: attributes)
@@ -129,7 +125,7 @@ public typealias OfflineSynchronizer = (String, [String:AnyObject]) -> Signal ->
 		}
 
 		interactor.onFailure = { (err: NSError) in
-			self.delegate?.syncManager?(self,
+            self.delegate?.syncManager?(manager: self,
 				onItemSyncScreenlet: screenletClassName,
 				failedKey: key,
 				attributes: attributes,
@@ -147,7 +143,7 @@ public typealias OfflineSynchronizer = (String, [String:AnyObject]) -> Signal ->
 
 		if let syncBuilder = synchronizers[screenletName] {
 			let synchronizer = syncBuilder(key, attributes)
-			syncQueue.addOperationWithBlock(to_sync(synchronizer))
+            syncQueue.addOperation(to_sync(function: synchronizer))
 		}
 	}
 

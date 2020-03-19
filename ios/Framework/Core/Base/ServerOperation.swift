@@ -14,15 +14,15 @@
 import UIKit
 
 
-@objc public class ServerOperation: NSOperation {
+@objc public class ServerOperation: Operation {
 
 	private struct OperationsQueue {
 
-		static private var queue: NSOperationQueue?
+        static private var queue: OperationQueue?
 
 		static func addOperation(operation: ServerOperation) {
 			if queue == nil {
-				queue = NSOperationQueue()
+                queue = OperationQueue()
 				queue!.maxConcurrentOperationCount = 1
 			}
 
@@ -31,16 +31,16 @@ import UIKit
 
 	}
 
-	public var lastError: NSError?
+	public var lastError: Error?
 
-	internal var onComplete: (ServerOperation -> Void)?
+	internal var onComplete: ((ServerOperation) -> Void)?
 
 
 	//MARK: NSOperation
 
 	public override func main() {
-		if self.cancelled {
-			lastError = NSError.errorWithCause(.Cancelled)
+        if isCancelled {
+            lastError = NSError.errorWithCause(cause: .Cancelled)
 		}
 		else {
 			if preRun() {
@@ -49,11 +49,11 @@ import UIKit
 					postRun()
 				}
 				else {
-					lastError = NSError.errorWithCause(.NotAvailable)
+                    lastError = NSError.errorWithCause(cause: .NotAvailable)
 				}
 			}
 			else {
-				lastError = NSError.errorWithCause(.AbortedDueToPreconditions)
+                lastError = NSError.errorWithCause(cause: .AbortedDueToPreconditions)
 			}
 		}
 
@@ -63,22 +63,22 @@ import UIKit
 
 	//MARK: Public methods
 
-	public func validateAndEnqueue(onComplete: (ServerOperation -> Void)? = nil) -> ValidationError? {
+	public func validateAndEnqueue(onComplete: ((ServerOperation) -> Void)? = nil) -> ValidationError? {
 		let error = validateData()
 
 		if error == nil {
-			enqueue(onComplete)
+            enqueue(onComplete: onComplete)
 		}
 
 		return error
 	}
 
-	public func enqueue(onComplete: (ServerOperation -> Void)? = nil) {
+	public func enqueue(onComplete: ((ServerOperation) -> Void)? = nil) {
 		if onComplete != nil {
 			self.onComplete = onComplete
 		}
 
-		OperationsQueue.addOperation(self)
+        OperationsQueue.addOperation(operation: self)
 	}
 
 
@@ -86,15 +86,15 @@ import UIKit
 
 	public func validateData() -> ValidationError? {
 		// Do not add any code here. Children classes may not call super
-		return nil
+		nil
 	}
 
 	public func preRun() -> Bool {
 		// Do not add any code here. Children classes may not call super
-		return true
+		true
 	}
 
-	public func doRun(session session: LRSession) {
+	public func doRun(session: LRSession) {
 		// Do not add any code here. Children classes may not call super
 	}
 
@@ -104,7 +104,7 @@ import UIKit
 
 	public func createSession() -> LRSession? {
 		if !SessionContext.isLoggedIn {
-			lastError = NSError.errorWithCause(.AbortedDueToPreconditions,
+            lastError = NSError.errorWithCause(cause: .AbortedDueToPreconditions,
 					message: "Login required to use this operation")
 
 			return nil

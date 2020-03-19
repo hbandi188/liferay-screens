@@ -88,7 +88,7 @@ import Foundation
 	}
 
 	public class func createBasicSession(
-			username username: String,
+			username: String,
 			password: String,
 			userAttributes: [String:AnyObject])
 			-> LRSession {
@@ -106,7 +106,7 @@ import Foundation
 	}
 
 	public class func createOAuthSession(
-			authentication authentication: LROAuth,
+			authentication: LROAuth,
 			userAttributes: [String:AnyObject])
 			-> LRSession {
 
@@ -121,11 +121,11 @@ import Foundation
 
 
 	private class func createSession(
-			authentication authentication: LRAuthentication,
+			authentication: LRAuthentication,
 			userAttributes: [String:AnyObject])
 			-> LRSession {
 
-		return createSession(
+		createSession(
 				server: LiferayServerContext.server,
 				authentication: authentication,
 				userAttributes: userAttributes)
@@ -154,21 +154,20 @@ import Foundation
 	}
 
 	public class func storeCredentials() -> Bool {
-		return credentialsStorage.store(
+		credentialsStorage.store(
 				session: StaticInstance.currentUserSession,
 				userAttributes: StaticInstance.currentUserAttributes)
 	}
 
 	public class func removeStoredCredentials() -> Bool {
-		return credentialsStorage.remove()
+		credentialsStorage.remove()
 	}
 
 	public class func loadStoredCredentials() -> Bool {
 		let credentialsStorage = CredentialsStorage()
 
 		if credentialsStorage.hasCredentialsStored {
-			if let result = credentialsStorage.load()
-					where result.session.server != nil {
+			if let result = credentialsStorage.load(), result.session.server != nil {
 
 				StaticInstance.currentUserSession = result.session
 				StaticInstance.currentUserAttributes = result.userAttributes
@@ -185,7 +184,7 @@ import Foundation
 	//MARK Private methods
 
 	private class func createSession(
-			server server: String,
+			server: String,
 			authentication: LRAuthentication,
 			userAttributes: [String:AnyObject])
 			-> LRSession {

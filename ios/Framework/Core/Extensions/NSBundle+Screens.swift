@@ -14,16 +14,16 @@
 import Foundation
 
 
-extension NSBundle {
+extension Bundle {
 
-	public class func allBundles(currentClass: AnyClass) -> [NSBundle] {
+    public class func allBundles(currentClass: AnyClass) -> [Bundle] {
 		let bundles =
 			[
 				discoverBundles(),
 				[
 					bundleForDefaultTheme(),
 					bundleForCore(),
-					NSBundle(forClass: currentClass)
+                    Bundle(for: currentClass)
 				],
 				bundlesForApp()
 			]
@@ -34,8 +34,8 @@ extension NSBundle {
 		}
 	}
 
-	public class func discoverBundles() -> [NSBundle] {
-		let allBundles = NSBundle.allFrameworks() 
+    public class func discoverBundles() -> [Bundle] {
+        let allBundles = Bundle.allFrameworks 
 
 		return allBundles.filter {
 			let screensPrefix = "LiferayScreens"
@@ -46,53 +46,53 @@ extension NSBundle {
 		}
 	}
 
-	public class func bundleForDefaultTheme() -> NSBundle {
-		let frameworkBundle = NSBundle(forClass: BaseScreenlet.self)
+    public class func bundleForDefaultTheme() -> Bundle {
+        let frameworkBundle = Bundle(for: BaseScreenlet.self)
 
-		let defaultBundlePath = frameworkBundle.pathForResource("LiferayScreens-default",
+        let defaultBundlePath = frameworkBundle.path(forResource: "LiferayScreens-default",
 				ofType: "bundle")!
 
-		return NSBundle(path: defaultBundlePath)!
+        return Bundle(path: defaultBundlePath)!
 	}
 
-	public class func bundleForCore() -> NSBundle {
-		let frameworkBundle = NSBundle(forClass: BaseScreenlet.self)
+    public class func bundleForCore() -> Bundle {
+        let frameworkBundle = Bundle(for: BaseScreenlet.self)
 
-		let coreBundlePath = frameworkBundle.pathForResource("LiferayScreens-core",
+        let coreBundlePath = frameworkBundle.path(forResource: "LiferayScreens-core",
 				ofType: "bundle")!
 
-		return NSBundle(path: coreBundlePath)!
+        return Bundle(path: coreBundlePath)!
 	}
 
-	public class func bundlesForApp() -> [NSBundle] {
+    public class func bundlesForApp() -> [Bundle] {
 
 		func appFile(path: String) -> String? {
-			let files = try? NSFileManager.defaultManager().contentsOfDirectoryAtPath(path)
+            let files = try? FileManager.default.contentsOfDirectory(atPath: path)
 			return (files ?? []).filter {
 					($0 as NSString).pathExtension == "app"
 				}
 				.first
 		}
 
-		let components = ((NSBundle.mainBundle().resourcePath ?? "") as NSString).pathComponents ?? []
+        let components = ((Bundle.main.resourcePath ?? "") as NSString).pathComponents 
 
 		if components.last == "Overlays" {
 			// running into IB
 			let coreBundle = bundleForCore()
 
 			if let range = coreBundle.resourcePath?.rangeOfString("Debug-iphonesimulator"),
-					path = coreBundle.resourcePath?.substringToIndex(range.endIndex),
-					appName = appFile(path),
-					appBundle = NSBundle(path: (path as NSString).stringByAppendingPathComponent(appName)) {
-				return [NSBundle.mainBundle(), appBundle]
+                let path = coreBundle.resourcePath?.substringToIndex(range.endIndex),
+                let appName = appFile(path),
+                let appBundle = Bundle(path: (path as NSString).stringByAppendingPathComponent(appName)) {
+                return [Bundle.mainBundle(), appBundle]
 			}
 		}
 
-		return [NSBundle.mainBundle()]
+        return [Bundle.mainBundle]
 	}
 
 
-	public class func imageInBundles(name name: String, currentClass: AnyClass) -> UIImage? {
+    public class func imageInBundles(name: String, currentClass: AnyClass) -> UIImage? {
 		for bundle in allBundles(currentClass) {
 			if let path = bundle.pathForResource(name, ofType: "png") {
 				return UIImage(contentsOfFile: path)

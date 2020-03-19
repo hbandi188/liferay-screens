@@ -35,8 +35,8 @@ public enum CacheStrategyType: String {
 
 
 	public init(name: String) {
-		let cacheFolderPath = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0] 
-		let path = (cacheFolderPath as NSString).stringByAppendingPathComponent(tableSchemaDatabase)
+        let cacheFolderPath = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0]
+        let path = (cacheFolderPath as NSString).appendingPathComponent(tableSchemaDatabase)
 		let dbPath = "\(path)_\(name.toSafeFilename()))"
 
 		database = YapDatabase(path: dbPath)
@@ -45,7 +45,7 @@ public enum CacheStrategyType: String {
 
 		super.init()
 
-		registerPendingToSyncView(nil)
+        registerPendingToSyncView(result: nil)
 	}
 
 	public convenience init(session: LRSession) {
@@ -53,22 +53,22 @@ public enum CacheStrategyType: String {
 	}
 
 
-	public func getString(collection collection: String, key: String, result: String? -> ()) {
-		readConnection.readWithBlock { transaction in
-			let value: AnyObject? = transaction.objectForKey(key, inCollection: collection)
+	public func getString(collection: String, key: String, result: (String?) -> ()) {
+        readConnection.read { transaction in
+            let value: AnyObject? = transaction.objectForKey(key, inCollection: collection) as AnyObject?
 			result((value as? NSObject)?.description)
 		}
 	}
 
-	public func getImage(collection collection: String, key: String, result: UIImage? -> ()) {
-		readConnection.readWithBlock { transaction in
-			let value: AnyObject? = transaction.objectForKey(key, inCollection: collection)
+	public func getImage(collection: String, key: String, result: (UIImage?) -> ()) {
+        readConnection.read { transaction in
+            let value: AnyObject? = transaction.objectForKey(key, inCollection: collection) as AnyObject?
 
 			if let image = value as? UIImage {
 				result(image)
 			}
 			else if let data = value as? NSData {
-				result(UIImage(data: data))
+                result(UIImage(data: data as Data))
 			}
 			else {
 				result(nil)
@@ -76,14 +76,14 @@ public enum CacheStrategyType: String {
 		}
 	}
 
-	public func getAny(collection collection: String, key: String, result: AnyObject? -> ()) {
+	public func getAny(collection: String, key: String, result: (AnyObject?) -> ()) {
 		readConnection.readWithBlock { transaction in
 			result(transaction.objectForKey(key, inCollection: collection))
 		}
 	}
 
 	public func getAnyWithAttributes(
-			collection collection: String,
+        collection: String,
 			key: String,
 			result: (AnyObject?, [String:AnyObject]?) -> ()) {
 
@@ -96,14 +96,14 @@ public enum CacheStrategyType: String {
 	}
 
 	public func getSomeWithAttributes(
-			collection collection: String,
+        collection: String,
 			keys: [String],
 			result: ([AnyObject?], [[String:AnyObject]?]) -> ()) {
 
-		readConnection.readWithBlock { transaction in
+        readConnection.read { transaction in
 			let keyCount = keys.count
-			var objects = [AnyObject?](count: keyCount, repeatedValue: nil)
-			var attributes = [[String:AnyObject]?](count: keyCount, repeatedValue: nil)
+            var objects = [AnyObject?](unsafeUninitializedCapacity: keyCount, initializingWith: nil)
+            var attributes = [[String:AnyObject]?](unsafeUninitializedCapacity: keyCount, initializingWith: nil)
 
 			for (i,k) in keys.enumerate() {
 				objects[i] = transaction.objectForKey(k, inCollection: collection)
@@ -116,13 +116,13 @@ public enum CacheStrategyType: String {
 		}
 	}
 
-	public func getSome(collection collection: String, keys: [String], result: [AnyObject?] -> ()) {
-		readConnection.readWithBlock { transaction in
+    public func getSome(collection: String, keys: [String], result: ([AnyObject?]) -> ()) {
+        readConnection.read { transaction in
 			var values = [AnyObject?]()
 
 			for k in keys {
 				values.append(transaction.objectForKey(k,
-					inCollection: collection))
+                                                       inCollection: collection) as AnyObject?)
 			}
 
 			result(values)
@@ -130,16 +130,16 @@ public enum CacheStrategyType: String {
 	}
 
 
-	public func getMetadata(collection collection: String, key: String, result: CacheMetadata? -> ()) {
-		readConnection.readWithBlock { transaction in
-			let value: AnyObject? = transaction.metadataForKey(key, inCollection: collection)
+	public func getMetadata(collection: String, key: String, result: (CacheMetadata?) -> ()) {
+        readConnection.read { transaction in
+            let value: AnyObject? = transaction.metadataForKey(key, inCollection: collection) as AnyObject?
 
 			result(value as? CacheMetadata)
 		}
 	}
 
 	public func setClean(
-			collection collection: String,
+			collection: String,
 			key: String,
 			value: NSCoding,
 			attributes: [String:AnyObject]) {
@@ -155,7 +155,7 @@ public enum CacheStrategyType: String {
 	}
 
 	public func setClean(
-			collection collection: String,
+			collection: String,
 			keys: [String],
 			values: [NSCoding],
 			attributes: [String:AnyObject]) {
@@ -169,7 +169,7 @@ public enum CacheStrategyType: String {
 
 
 	public func setDirty(
-			collection collection: String,
+			collection: String,
 			key: String,
 			value: NSCoding,
 			attributes: [String:AnyObject]) {
@@ -183,7 +183,7 @@ public enum CacheStrategyType: String {
 	}
 
 	private func set(
-			collection collection: String,
+			collection: String,
 			keys: [String],
 			values: [NSCoding],
 			synchronized: NSDate?,
@@ -192,7 +192,7 @@ public enum CacheStrategyType: String {
 		assert(keys.count == values.count,
 			"Keys and values must have same number of elements")
 
-		writeConnection.readWriteWithBlock { transaction in
+        writeConnection.readWrite { transaction in
 			let metadata = CacheMetadata(
 				synchronized: synchronized,
 				attributes: attributes)
@@ -207,7 +207,7 @@ public enum CacheStrategyType: String {
 	}
 
 	public func setClean(
-			collection collection: String,
+        collection: String,
 			key: String,
 			attributes: [String:AnyObject]) {
 
@@ -218,13 +218,13 @@ public enum CacheStrategyType: String {
 	}
 
 	private func setMetadata(
-			collection collection: String,
+        collection: String,
 			key: String,
 			synchronized: NSDate?,
 			attributes: [String:AnyObject]) {
 
-		writeConnection.readWriteWithBlock { transaction in
-			if transaction.hasObjectForKey(key, inCollection: collection) {
+        writeConnection.readWrite { transaction in
+            if transaction.hasObject(forKey: key, inCollection: collection) {
 				let newMetadata = CacheMetadata(
 					synchronized: synchronized,
 					attributes: attributes)
@@ -236,27 +236,27 @@ public enum CacheStrategyType: String {
 		}
 	}
 
-	public func remove(collection collection: String, key: String) {
-		writeConnection.readWriteWithBlock { transaction in
-			transaction.removeObjectForKey(key, inCollection: collection)
+    public func remove(collection: String, key: String) {
+        writeConnection.readWrite { transaction in
+            transaction.removeObject(forKey: key, inCollection: collection)
 		}
 	}
 
-	public func remove(collection collection: String) {
-		writeConnection.readWriteWithBlock { transaction in
-			transaction.removeAllObjectsInCollection(collection)
+    public func remove(collection: String) {
+        writeConnection.readWrite { transaction in
+            transaction.removeAllObjects(inCollection: collection)
 		}
 	}
 
 	public func removeAll() {
-		writeConnection.readWriteWithBlock { transaction in
+        writeConnection.readWrite { transaction in
 			transaction.removeAllObjectsInAllCollections()
 		}
 	}
 
-	public func countPendingToSync(result: UInt -> ()) {
+	public func countPendingToSync(result: (UInt) -> ()) {
 		pendingToSyncTransaction { transaction in
-			dispatch_main(true) {
+            dispatch_main(forceDispatch: true) {
 				result(transaction?.numberOfItemsInAllGroups() ?? 0)
 			}
 		}
@@ -269,7 +269,7 @@ public enum CacheStrategyType: String {
 				transaction?.enumerateKeysAndMetadataInGroup(group) {
 						(collection, key, metadata, index, stop) in
 
-					dispatch_main(true) {
+                    dispatch_main(forceDispatch: true) {
 						let cacheMetadata = metadata as! CacheMetadata
 						if result(collection, key, cacheMetadata.attributes ?? [:]) {
 							stop.memory = false
@@ -286,16 +286,16 @@ public enum CacheStrategyType: String {
 
 	//MARK: Private methods
 
-	private func pendingToSyncTransaction(result: YapDatabaseViewTransaction? -> ()) {
+	private func pendingToSyncTransaction(result: (YapDatabaseViewTransaction?) -> ()) {
 		if database.registeredExtension("pendingToSync") != nil {
-			readConnection.readWithBlock { transaction in
+            readConnection.read { transaction in
 				result(transaction.ext("pendingToSync") as? YapDatabaseViewTransaction)
 			}
 		}
 		else {
 			registerPendingToSyncView { success in
 				if success {
-					self.readConnection.readWithBlock { transaction in
+                    self.readConnection.read { transaction in
 						result(transaction.ext("pendingToSync") as? YapDatabaseViewTransaction)
 					}
 				}
@@ -306,7 +306,7 @@ public enum CacheStrategyType: String {
 		}
 	}
 
-	private func registerPendingToSyncView(result: (Bool -> ())?) {
+	private func registerPendingToSyncView(result: ((Bool) -> ())?) {
 		let grouping = YapDatabaseViewGrouping.withKeyBlock { (_, collection, key) in
 			return collection
 		}
@@ -324,7 +324,7 @@ public enum CacheStrategyType: String {
 
 		let parentView = YapDatabaseView(grouping: grouping, sorting: sorting)
 
-		database.asyncRegisterExtension(parentView,
+        database.asyncRegister(parentView,
 			withName: "allEntries",
 			connection: writeConnection,
 			completionQueue: nil) { success in
@@ -333,7 +333,7 @@ public enum CacheStrategyType: String {
 						parentViewName: "allEntries",
 						filtering: filtering)
 
-					self.database.asyncRegisterExtension(filterView,
+                    self.database.asyncRegister(filterView,
 						withName: "pendingToSync",
 						connection: self.writeConnection,
 						completionQueue: nil) { success in

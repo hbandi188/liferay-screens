@@ -40,10 +40,10 @@ public class GetUserByUserIdOperation: GetUserBaseOperation {
 	//MARK: LiferayLoginBaseOperation
 
 	override public func sendGetUserRequest(
-			service service: LRUserService_v62)
+        service: LRUserService_v62)
 			throws -> NSDictionary? {
 
-		return try service.getUserByIdWithUserId(userId)
+                return try service.getUserByIdWithUserId(userId) as NSDictionary
 	}
 
 }

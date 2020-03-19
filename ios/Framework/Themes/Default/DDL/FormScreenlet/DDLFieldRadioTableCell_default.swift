@@ -32,15 +32,15 @@ public class DDLFieldRadioTableCell_default: DDLFieldTableCell {
 	}
 
 	public var radioTextColor : UIColor {
-		return UIColor.blackColor()
+        return UIColor.black
 	}
 
 	public var invalidRadioColor : UIColor {
-		return UIColor.redColor()
+        return UIColor.red
 	}
 
 	public var invalidRadioTextColor : UIColor {
-		return UIColor.redColor()
+        return UIColor.red
 	}
 
 	public var radioButtonWidth: Int {
@@ -56,7 +56,7 @@ public class DDLFieldRadioTableCell_default: DDLFieldTableCell {
 
 	//MARK: DDLFieldTableCell
 
-	override public func canBecomeFirstResponder() -> Bool {
+    override public var canBecomeFirstResponder: Bool {
 		return false
 	}
 
@@ -70,19 +70,19 @@ public class DDLFieldRadioTableCell_default: DDLFieldTableCell {
 				(CGFloat(stringField.options.count) *
 					(DDLFieldRadioButtonHeight + DDLFieldRadioButtonMargin))
 
-			formView!.setCellHeight(height, forField:stringField)
+            formView!.setCellHeight(height: height, forField:stringField)
 			separator?.frame.origin.y = height
 
-			createRadioButtons(stringField)
+            createRadioButtons(field: stringField)
 
 			if stringField.lastValidationResult != nil {
-				onPostValidation(stringField.lastValidationResult!)
+                onPostValidation(valid: stringField.lastValidationResult!)
 			}
 		}
 	}
 
 	override public func onPostValidation(valid: Bool) {
-		super.onPostValidation(valid)
+        super.onPostValidation(valid: valid)
 
 		label?.textColor = valid ? self.radioTextColor : self.invalidRadioTextColor
 		let radioColor = valid ? self.radioColor : self.invalidRadioColor
@@ -101,7 +101,7 @@ public class DDLFieldRadioTableCell_default: DDLFieldTableCell {
 		var radioButtons:[AnyObject] = []
 
 		for option in field.options {
-			let data = createRadioButtonData(field, option: option)
+            let data = createRadioButtonData(field: field, option: option)
 			radioButtons.append(data)
 		}
 
@@ -115,12 +115,12 @@ public class DDLFieldRadioTableCell_default: DDLFieldTableCell {
 		radioGroup!.identifier = field.name
 		radioGroup!.marginBetweenItems = Int(DDLFieldRadioButtonMargin)
 		radioGroup!.create()
-		radioGroup!.position = CGPointMake(25.0,
+		radioGroup!.position = CGPoint(25.0,
 				DDLFieldRadioGroupMarginTop + label!.frame.origin.y + label!.frame.size.height)
 
 		addSubview(radioGroup!)
 
-		NSNotificationCenter.defaultCenter().addObserver(self,
+        NotificationCenter.defaultCenter.addObserver(self,
 				selector: "radioButtonSelected:",
 				name: SELECTED_RADIO_BUTTON_CHANGED,
 				object: radioGroup)
@@ -147,18 +147,18 @@ public class DDLFieldRadioTableCell_default: DDLFieldTableCell {
 
 	public dynamic func radioButtonSelected(notification:NSNotification) {
 		if let stringField = field as? DDLFieldStringWithOptions {
-			stringField.currentValue = radioGroup!.selectedRadioButton!.data.labelText
+            stringField.currentValue = radioGroup!.selectedRadioButton!.data.labelText as AnyObject?
 
 			if stringField.lastValidationResult != nil && !stringField.lastValidationResult! {
 				stringField.lastValidationResult = true
-				onPostValidation(true)
+                onPostValidation(valid: true)
 			}
 		}
 	}
 
 	public func clearObserver() {
 		if radioGroup != nil {
-			NSNotificationCenter.defaultCenter().removeObserver(self,
+            NotificationCenter.defaultCenter.removeObserver(self,
 					name: SELECTED_RADIO_BUTTON_CHANGED,
 					object: radioGroup!)
 		}

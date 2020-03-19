@@ -26,7 +26,7 @@ import Foundation
 
 	override public func hideHUD() {
 		super.hideHUD()
-		showSpinner(false)
+        showSpinner(show: false)
 	}
 
 	override public func showHUDInView(view: UIView,
@@ -35,21 +35,21 @@ import Foundation
 			spinnerMode: ProgressSpinnerMode) {
 
 		if closeMode == .ManualClose_TouchClosable {
-			showSpinner(false)
+            showSpinner(show: false)
 
-			super.showHUDInView(view,
+            super.showHUDInView(view: view,
 				message: message,
 				closeMode: .ManualClose_TouchClosable,
 				spinnerMode: .NoSpinner)
 		}
 		else {
-			showSpinner(true)
+            showSpinner(show: true)
 		}
 	}
 
 
 	private func showSpinner(show: Bool) {
-		if self.spinner != nil && self.spinner!.isAnimating() != show {
+        if self.spinner != nil && self.spinner!.isAnimating != show {
 			dispatch_main {
 				if show {
 					self.spinner?.startAnimating()

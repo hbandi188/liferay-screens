@@ -48,9 +48,9 @@ public class LiferaySignUpOperation: ServerOperation {
 		return error
 	}
 
-	override public func doRun(session session: LRSession) {
-		let result: [NSObject:AnyObject]?
-		let service = LRUserService_v62(session: session)
+    override public func doRun(session: LRSession) {
+		let result: [AnyHashable: Any]?
+		let service = LRUserService_v62(session: session)!
 		let emptyDict = [AnyObject]()
 		let password = viewModel.password ?? ""
 		let companyId = (self.companyId != 0)
@@ -58,7 +58,7 @@ public class LiferaySignUpOperation: ServerOperation {
 				: LiferayServerContext.companyId
 
 		do {
-			result = try service.addUserWithCompanyId(companyId,
+            result = try service.addUser(withCompanyId: companyId,
 				autoPassword: (password == ""),
 				password1: password,
 				password2: password,
@@ -79,7 +79,7 @@ public class LiferaySignUpOperation: ServerOperation {
 				birthdayYear: 1970,
 				jobTitle: viewModel.jobTitle ?? "",
 				groupIds: [
-					NSNumber(longLong: LiferayServerContext.groupId)
+                    NSNumber(value: LiferayServerContext.groupId)
 				],
 				organizationIds: emptyDict,
 				roleIds: emptyDict,
@@ -93,7 +93,7 @@ public class LiferaySignUpOperation: ServerOperation {
 				serviceContext: nil)
 
 			if result?["userId"] == nil {
-				lastError = NSError.errorWithCause(.InvalidServerResponse, userInfo: nil)
+                lastError = NSError.errorWithCause(cause: .InvalidServerResponse, userInfo: nil)
 				resultUserAttributes = nil
 			}
 			else {
@@ -108,7 +108,7 @@ public class LiferaySignUpOperation: ServerOperation {
 	}
 
 	override public func createSession() -> LRSession? {
-		return SessionContext.createAnonymousBasicSession(anonymousUsername, anonymousPassword)
+        return SessionContext.createAnonymousBasicSession(userName: anonymousUsername, anonymousPassword)
 	}
 
 }

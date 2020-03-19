@@ -78,7 +78,7 @@ public class BaseListPageLoadInteractor: ServerReadOperationInteractor {
 
 	//MARK: Cache
 
-	override public func readFromCache(op: ServerOperation, result: AnyObject? -> ()) {
+	override public func readFromCache(op: ServerOperation, result: (AnyObject?) -> ()) {
 		guard let cacheManager = SessionContext.currentCacheManager else {
 			result(nil)
 			return
@@ -87,7 +87,7 @@ public class BaseListPageLoadInteractor: ServerReadOperationInteractor {
 		if let loadOp = op as? LiferayPaginationOperation {
 			let key = cacheKey(loadOp)
 			cacheManager.getSome(
-					collection: ScreenletName(screenlet!.dynamicType),
+					collection: ScreenletName(type(of: screenlet!)),
 					keys: ["\(key)-\(page)", "\(key)-\(page)-count"]) {
 
 				loadOp.resultPageContent = $0.first as? [[String:AnyObject]]
@@ -109,20 +109,19 @@ public class BaseListPageLoadInteractor: ServerReadOperationInteractor {
 		}
 
 		if let loadOp = op as? LiferayPaginationOperation,
-				pageContent = loadOp.resultPageContent
-				where !pageContent.isEmpty {
+				let pageContent = loadOp.resultPageContent, !pageContent.isEmpty {
 
 			let key = cacheKey(loadOp)
 
 			cacheManager.setClean(
-				collection: ScreenletName(screenlet!.dynamicType),
+				collection: ScreenletName(type(of: screenlet!)),
 				key: "\(key)-\(page)",
 				value: pageContent,
 				attributes: [:])
 
 			if let rowCount = loadOp.resultRowCount {
 				cacheManager.setClean(
-					collection: ScreenletName(screenlet!.dynamicType),
+					collection: ScreenletName(type(of: screenlet!)),
 					key: "\(key)-\(page)-count",
 					value: rowCount,
 					attributes: [:])

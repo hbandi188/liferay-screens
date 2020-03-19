@@ -25,75 +25,74 @@ public func nullIfEmpty(string: String?) -> String? {
 	return string
 }
 
-public func synchronized(lock: AnyObject, closure: Void -> Void) {
+public func synchronized(lock: AnyObject, closure: () -> Void) {
 	objc_sync_enter(lock)
 	closure()
 	objc_sync_exit(lock)
 }
 
 
-public func dispatch_delayed(delay: NSTimeInterval, block: dispatch_block_t) {
-    let time = dispatch_time(DISPATCH_TIME_NOW, Int64(delay * Double(NSEC_PER_SEC)))
-    dispatch_after(time, dispatch_get_main_queue(), block)
+public func dispatch_delayed(delay: TimeInterval, block: @escaping () -> Void) {
+    DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: block)
 }
 
-public func dispatch_async(block: dispatch_block_t) {
-	let queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)
-	dispatch_async(queue) {
+public func dispatch_async(block: () -> Void) {
+    let queue = DispatchQueue.global(priority: .background)
+    queue.async() {
 		block()
 	}
 }
 
 
-public func dispatch_async(block: dispatch_block_t, thenMain mainBlock: dispatch_block_t) {
-	let queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)
+public func dispatch_async(block: () -> Void, thenMain mainBlock: () -> Void) {
+    let queue = DispatchQueue.global(priority: .background)
 
-	dispatch_async(queue) {
+    queue.async() {
 		block()
 
-		dispatch_async(dispatch_get_main_queue()) {
-			mainBlock()
-		}
+        DispatchQueue.main.async {
+            mainBlock()
+        }
 	}
 }
 
 
 public typealias Signal = () -> ()
 
-public func dispatch_sync(block: Signal -> ()) {
-	let waitGroup = dispatch_group_create()
-	dispatch_group_enter(waitGroup)
+public func dispatch_sync(block: (Signal) -> ()) {
+    let waitGroup = DispatchGroup()
+    waitGroup.enter()
 	block {
-		dispatch_group_leave(waitGroup)
+        waitGroup.leave()
 	}
-	dispatch_group_wait(waitGroup, DISPATCH_TIME_FOREVER)
+    waitGroup.wait(timeout: .distantFuture)
 }
 
-public func to_sync(function: Signal -> ()) -> () -> () {
+public func to_sync(function: (Signal) -> ()) -> () -> () {
 	return {
-		dispatch_sync(function)
+        dispatch_sync(block: function)
 	}
 }
 
-public func dispatch_main(block: dispatch_block_t) {
-	if NSThread.isMainThread() {
+public func dispatch_main(block: () -> Void) {
+    if Thread.isMainThread {
 		block()
 	}
 	else {
-		dispatch_async(dispatch_get_main_queue()) {
-			block()
-		}
+        DispatchQueue.main.async {
+            block()
+        }
 	}
 }
 
-public func dispatch_main(forceDispatch: Bool, block: dispatch_block_t) {
-	if !forceDispatch && NSThread.isMainThread() {
+public func dispatch_main(forceDispatch: Bool, block: () -> Void) {
+    if !forceDispatch && Thread.isMainThread {
 		block()
 	}
 	else {
-		dispatch_async(dispatch_get_main_queue()) {
-			block()
-		}
+        DispatchQueue.main.async {
+            block()
+        }
 	}
 }
 
@@ -102,38 +101,38 @@ public func dispatch_main(forceDispatch: Bool, block: dispatch_block_t) {
 public func ScreenletName(klass: AnyClass) -> String {
 	var className = NSStringFromClass(klass)
 
-	if className.characters.indexOf(".") != nil {
-		className = className.componentsSeparatedByString(".")[1]
-	}
-
-	return className.componentsSeparatedByString("Screenlet")[0]
+    if className.firstIndex(of: ".") != nil {
+        className = String(className.split(separator: ".")[1])
+    }
+    
+    return className.components(separatedBy: "Screenlet")[0]
 }
 
-public func LocalizedString(tableName: String, var key: String, obj: AnyObject) -> String {
-	key = "\(tableName)-\(key)"
+public func LocalizedString(tableName: String, key: String, obj: AnyObject) -> String {
+	let fullKey = "\(tableName)-\(key)"
 
-	func getString(bundle: NSBundle) -> String? {
-		let res = NSLocalizedString(key,
+    func getString(bundle: Bundle) -> String? {
+		let res = NSLocalizedString(fullKey,
 			tableName: tableName,
 			bundle: bundle,
-			value: key,
+			value: fullKey,
 			comment: "");
 
-		return (res.lowercaseString != key.lowercaseString) ? res : nil
+		return (res.lowercased() != fullKey.lowercased()) ? res : nil
 	}
 
-	let bundles = NSBundle.allBundles(obj.dynamicType)
+    let bundles = Bundle.allBundles(currentClass: type(of: obj))
 
 	for bundle in bundles {
 		// use forced language bundle
-		if let languageBundle = NSLocale.bundleForCurrentLanguageInBundle(bundle) {
-			if let res = getString(languageBundle) {
+        if let languageBundle = NSLocale.bundleForCurrentLanguageInBundle(bundle: bundle) {
+            if let res = getString(bundle: languageBundle) {
 				return res
 			}
 		}
 
 		// try with outer bundle
-		if let res = getString(bundle) {
+        if let res = getString(bundle: bundle) {
 			return res
 		}
 	}
@@ -143,12 +142,11 @@ public func LocalizedString(tableName: String, var key: String, obj: AnyObject) 
 
 
 public func isOSAtLeastVersion(version: String) -> Bool {
-	let currentVersion = UIDevice.currentDevice().systemVersion
-
+    let currentVersion = UIDevice.current.systemVersion
 	if currentVersion.compare(version,
-			options: .NumericSearch,
-			range: nil,
-			locale: nil) != NSComparisonResult.OrderedAscending {
+                              options: .numeric,
+                              range: nil,
+                              locale: nil) != ComparisonResult.orderedAscending {
 
 		return true
 	}
@@ -158,21 +156,21 @@ public func isOSAtLeastVersion(version: String) -> Bool {
 
 
 public func isOSEarlierThanVersion(version: String) -> Bool {
-	return !isOSAtLeastVersion(version)
+    return !isOSAtLeastVersion(version: version)
 }
 
 
 public func adjustRectForCurrentOrientation(rect: CGRect) -> CGRect {
 	var adjustedRect = rect
 
-	if isOSEarlierThanVersion("8.0") {
+    if isOSEarlierThanVersion(version: "8.0") {
 		// For 7.x and earlier, the width and height are reversed when
 		// the device is landscaped
-		switch UIDevice.currentDevice().orientation {
-			case .LandscapeLeft, .LandscapeRight:
-				adjustedRect = CGRectMake(
-						rect.origin.y, rect.origin.x,
-						rect.size.height, rect.size.width)
+		switch UIDevice.current.orientation {
+        case .landscapeLeft, .landscapeRight:
+				adjustedRect = CGRect(
+                    x: rect.origin.y, y: rect.origin.x,
+                    width: rect.size.height, height: rect.size.width)
 			default: ()
 		}
 	}
@@ -181,9 +179,9 @@ public func adjustRectForCurrentOrientation(rect: CGRect) -> CGRect {
 }
 
 public func centeredRectInView(view: UIView, size: CGSize) -> CGRect {
-	return CGRectMake(
-			(view.frame.size.width - size.width) / 2,
-			(view.frame.size.height - size.height) / 2,
-			size.width,
-			size.height)
+	return CGRect(
+        x: (view.frame.size.width - size.width) / 2,
+        y: (view.frame.size.height - size.height) / 2,
+        width: size.width,
+        height: size.height)
 }

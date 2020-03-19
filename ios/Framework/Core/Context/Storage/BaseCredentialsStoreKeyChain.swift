@@ -41,7 +41,7 @@ public class BaseCredentialsStoreKeyChain : CredentialsStore {
 			try keychain.set(String(LiferayServerContext.groupId),
 				key: "groupId")
 
-			let userData = try? NSJSONSerialization.dataWithJSONObject(userAttributes!,
+            let userData = try? JSONSerialization.dataWithJSONObject(userAttributes!,
 				options: NSJSONWritingOptions())
 			if let userData = userData {
 				try keychain.set(userData, key: "user_attributes")
@@ -97,7 +97,7 @@ public class BaseCredentialsStoreKeyChain : CredentialsStore {
 		}
 
 		if let userData = userData {
-			let json = try? NSJSONSerialization.JSONObjectWithData(userData,
+            let json = try? JSONSerialization.JSONObjectWithData(userData,
 					options: [])
 
 			userAttributes = json as? [String:AnyObject]
@@ -109,11 +109,11 @@ public class BaseCredentialsStoreKeyChain : CredentialsStore {
 		return false
 	}
 
-	public func storeAuth(keychain keychain: Keychain, auth: LRAuthentication) {
+    public func storeAuth(keychain: Keychain, auth: LRAuthentication) {
 		fatalError("This method must be overriden")
 	}
 
-	public func loadAuth(keychain keychain: Keychain) -> LRAuthentication? {
+    public func loadAuth(keychain: Keychain) -> LRAuthentication? {
 		fatalError("This method must be overriden")
 	}
 
@@ -123,7 +123,7 @@ public class BaseCredentialsStoreKeyChain : CredentialsStore {
 			return nil
 		}
 
-		return AuthType(rawValue: value ?? "")
+        return AuthType(rawValue: value )
 	}
 
 	public class func keychain() -> Keychain {

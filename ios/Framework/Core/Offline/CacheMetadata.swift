@@ -16,7 +16,6 @@ import YapDatabase
 
 
 @objc public class CacheMetadata : NSObject, NSCoding {
-
 	public let synchronized: NSDate?
 	public let attributes: [String:AnyObject]
 
@@ -28,15 +27,15 @@ import YapDatabase
 	}
 
 	public required convenience init?(coder aDecoder: NSCoder) {
-		let synchronized = aDecoder.decodeObjectForKey("sync_date") as? NSDate
-		let attributes = (aDecoder.decodeObjectForKey("attributes") as? [String:AnyObject]) ?? [:]
+        let synchronized = aDecoder.decodeObject(forKey: "sync_date") as? NSDate
+        let attributes = (aDecoder.decodeObject(forKey: "attributes") as? [String:AnyObject]) ?? [:]
 
 		self.init(synchronized: synchronized, attributes: attributes)
 	}
 
 	public func encodeWithCoder(aCoder: NSCoder) {
-		aCoder.encodeObject(synchronized, forKey:"sync_date")
-		aCoder.encodeObject(attributes, forKey:"attributes")
+        aCoder.encode(synchronized, forKey:"sync_date")
+        aCoder.encode(attributes, forKey:"attributes")
 	}
 
 }

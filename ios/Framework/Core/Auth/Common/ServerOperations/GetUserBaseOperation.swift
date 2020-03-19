@@ -42,7 +42,7 @@ public class GetUserBaseOperation: ServerOperation {
 		if SessionContext.isLoggedIn {
 			return SessionContext.createSessionFromCurrentSession()
 		}
-		guard let userName = userName, password = password else {
+        guard let userName = userName, let password = password else {
 			return nil
 		}
 
@@ -53,13 +53,13 @@ public class GetUserBaseOperation: ServerOperation {
 						password: password))
 	}
 
-	override public func doRun(session session: LRSession) {
+    override public func doRun(session: LRSession) {
 		do {
 			let result = try sendGetUserRequest(
 				service: LRUserService_v62(session: session))
 
 			if result?["userId"] == nil {
-				lastError = NSError.errorWithCause(.InvalidServerResponse)
+                lastError = NSError.errorWithCause(cause: .InvalidServerResponse)
 				resultUserAttributes = nil
 			}
 			else {
@@ -90,7 +90,7 @@ public class GetUserBaseOperation: ServerOperation {
 	// MARK: Template methods
 
 	public func sendGetUserRequest(
-			service service: LRUserService_v62)
+        service: LRUserService_v62)
 			throws -> NSDictionary? {
 
 		fatalError("sendGetUserRequest must be overriden")
