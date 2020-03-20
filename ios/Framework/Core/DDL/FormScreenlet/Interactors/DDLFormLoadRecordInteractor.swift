@@ -100,7 +100,7 @@ class DDLFormLoadRecordInteractor: ServerReadOperationInteractor {
 
 		if let recordDataValue = recordData,
 				let recordAttributesValue = recordAttributes {
-			self.resultFormRecord?.updateCurrentValues(recordDataValue)
+            self.resultFormRecord?.updateCurrentValues(values: recordDataValue)
 			self.resultFormRecord?.attributes = recordAttributesValue
 		}
 	}
@@ -122,7 +122,7 @@ class DDLFormLoadRecordInteractor: ServerReadOperationInteractor {
 				let recordAttributes = loadRecordOp.resultRecordAttributes {
 
 			cacheManager.setClean(
-				collection: ScreenletName(DDLFormScreenlet),
+                collection: ScreenletName(klass: DDLFormScreenlet.self),
 				key: "structureId-\(self.structureId)",
 				value: recordForm,
 				attributes: [
@@ -133,7 +133,7 @@ class DDLFormLoadRecordInteractor: ServerReadOperationInteractor {
 				attributes: recordAttributes)
 
 			cacheManager.setClean(
-				collection: ScreenletName(DDLFormScreenlet),
+                collection: ScreenletName(klass: DDLFormScreenlet),
 				key: "recordId-\(loadRecordOp.recordId)",
 				value: recordData,
 				attributes: ["record": record])
@@ -148,7 +148,7 @@ class DDLFormLoadRecordInteractor: ServerReadOperationInteractor {
 
 			// save just record data
 			cacheManager.setClean(
-				collection: ScreenletName(DDLFormScreenlet),
+                collection: ScreenletName(klass: DDLFormScreenlet),
 				key: "recordId-\(loadRecordOp.recordId)",
 				value: recordData,
 				attributes: ["record": record])
@@ -167,7 +167,7 @@ class DDLFormLoadRecordInteractor: ServerReadOperationInteractor {
 			// load form and record
 
 			cacheManager.getSomeWithAttributes(
-					collection: ScreenletName(DDLFormScreenlet),
+                collection: ScreenletName(klass: DDLFormScreenlet),
 					keys: ["structureId-\(structureId)", "recordId-\(recordId)"]) {
 				objects, attributes in
 
@@ -201,7 +201,7 @@ class DDLFormLoadRecordInteractor: ServerReadOperationInteractor {
 
 			// load just record
 			cacheManager.getAnyWithAttributes(
-					collection: ScreenletName(DDLFormScreenlet),
+                collection: ScreenletName(klass: DDLFormScreenlet.self),
 					key: "recordId-\(loadRecordOp.recordId)") {
 				object, attributes in
 

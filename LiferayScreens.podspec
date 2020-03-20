@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 	s.name         = 'LiferayScreens'
 	s.module_name  = 'LiferayScreens'
-	s.version      = '1.3.2'
+	s.version      = '1.3.3'
 	s.summary      = 'A family of visual components called screenlets that are connected to the Liferay Platform used as a backend'
 	s.homepage     = 'https://www.liferay.com/liferay-screens'
 	s.license = { 
@@ -59,10 +59,10 @@ Pod::Spec.new do |s|
 	s.dependency 'YapDatabase/SQLCipher', '2.8.2'
 
 	# Login & signup: save credentials
-	s.dependency 'KeychainAccess', '2.3.1'
+	s.dependency 'KeychainAccess', '3.2.1'
 
 	# UserPortrait
-	s.dependency 'CryptoSwift', '0.1.1'
+	s.dependency 'CryptoSwift', '1.2.0'
 
 	# DDLForm
 	s.dependency 'DTPickerPresenter', '0.2.0'

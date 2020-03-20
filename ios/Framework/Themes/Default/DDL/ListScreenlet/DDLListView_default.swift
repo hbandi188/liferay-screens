@@ -36,7 +36,7 @@ public class DDLListView_default: BaseListTableView, DDLListViewModel {
 				name: "default-hourglass",
                 currentClass: type(of: self)) {
 			cell.accessoryView = UIImageView(image: image)
-			cell.accessoryView!.frame = CGRectMake(0, 0, image.size.width, image.size.height)
+            cell.accessoryView!.frame = CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height)
 		}
 	}
 

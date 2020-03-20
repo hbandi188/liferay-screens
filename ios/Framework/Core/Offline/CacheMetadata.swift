@@ -33,9 +33,9 @@ import YapDatabase
 		self.init(synchronized: synchronized, attributes: attributes)
 	}
 
-	public func encodeWithCoder(aCoder: NSCoder) {
-        aCoder.encode(synchronized, forKey:"sync_date")
-        aCoder.encode(attributes, forKey:"attributes")
+    public func encode(with coder: NSCoder) {
+        coder.encode(synchronized, forKey:"sync_date")
+        coder.encode(attributes, forKey:"attributes")
 	}
 
 }

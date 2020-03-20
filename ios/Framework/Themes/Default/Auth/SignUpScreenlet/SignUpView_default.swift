@@ -34,20 +34,20 @@ public class SignUpView_default: BaseScreenletView, SignUpViewModel {
 	override public var progressMessages: [String:ProgressMessages] {
 		return [
 			"signup-action" :
-				[.Working : LocalizedString("default", key: "signup-loading-message", obj: self),
-				.Failure : LocalizedString("default", key: "signup-loading-error", obj: self)],
+                [.Working : LocalizedString(tableName: "default", key: "signup-loading-message", obj: self),
+                 .Failure : LocalizedString(tableName: "default", key: "signup-loading-error", obj: self)],
 			"save-action" :
-				[.Working : LocalizedString("default", key: "signup-saving-message", obj: self),
-				.Failure : LocalizedString("default", key: "signup-saving-error", obj: self)],
+                [.Working : LocalizedString(tableName: "default", key: "signup-saving-message", obj: self),
+                 .Failure : LocalizedString(tableName: "default", key: "signup-saving-error", obj: self)],
 		]
 	}
 
 	override public func onStartInteraction() {
-		signUpButton!.enabled = false
+        signUpButton!.isEnabled = false
 	}
 
 	override public func onFinishInteraction(result: AnyObject?, error: NSError?) {
-		signUpButton!.enabled = true
+        signUpButton!.isEnabled = true
 	}
 
 
@@ -56,19 +56,19 @@ public class SignUpView_default: BaseScreenletView, SignUpViewModel {
 	override public func onCreated() {
 		super.onCreated()
 
-		setButtonDefaultStyle(signUpButton)
+        setButtonDefaultStyle(button: signUpButton)
 
 		scrollView?.contentSize = scrollView!.frame.size
 	}
 
 	override public func onSetTranslations() {
-		firstNameField?.placeholder = LocalizedString("default", key: "first-name-placeholder", obj: self)
-		lastNameField?.placeholder = LocalizedString("default", key: "last-name-placeholder", obj: self)
-		emailAddressField?.placeholder = LocalizedString("default", key: "auth-method-email", obj: self)
-		passwordField?.placeholder = LocalizedString("default", key: "password-placeholder", obj: self)
+        firstNameField?.placeholder = LocalizedString(tableName: "default", key: "first-name-placeholder", obj: self)
+        lastNameField?.placeholder = LocalizedString(tableName: "default", key: "last-name-placeholder", obj: self)
+        emailAddressField?.placeholder = LocalizedString(tableName: "default", key: "auth-method-email", obj: self)
+        passwordField?.placeholder = LocalizedString(tableName: "default", key: "password-placeholder", obj: self)
 
 		signUpButton?.replaceAttributedTitle(
-				LocalizedString("default", key: "signup-button", obj: self),
+            title: LocalizedString(tableName: "default", key: "signup-button", obj: self),
 				forState: .Normal)
 	}
 
@@ -81,7 +81,7 @@ public class SignUpView_default: BaseScreenletView, SignUpViewModel {
 
 	public var emailAddress: String? {
 		get {
-			return nullIfEmpty(emailAddressField!.text)
+            return nullIfEmpty(string: emailAddressField!.text)
 		}
 		set {
 			emailAddressField!.text = newValue
@@ -90,7 +90,7 @@ public class SignUpView_default: BaseScreenletView, SignUpViewModel {
 
 	public var password: String? {
 		get {
-			return nullIfEmpty(passwordField!.text)
+            return nullIfEmpty(string: passwordField!.text)
 		}
 		set {
 			passwordField!.text = newValue
@@ -99,7 +99,7 @@ public class SignUpView_default: BaseScreenletView, SignUpViewModel {
 
 	public var firstName: String? {
 		get {
-			return nullIfEmpty(firstNameField!.text)
+            return nullIfEmpty(string: firstNameField!.text)
 		}
 		set {
 			firstNameField!.text = newValue
@@ -108,7 +108,7 @@ public class SignUpView_default: BaseScreenletView, SignUpViewModel {
 
 	public var lastName: String? {
 		get {
-			return nullIfEmpty(lastNameField!.text)
+            return nullIfEmpty(string: lastNameField!.text)
 		}
 		set {
 			lastNameField!.text = newValue
@@ -124,13 +124,13 @@ public class SignUpView_default: BaseScreenletView, SignUpViewModel {
 				key = "save-button"
 				actionName = "save-action"
 
-				self.firstName = SessionContext.userAttribute("firstName") as? String
-				self.middleName = SessionContext.userAttribute("middleName") as? String
-				self.lastName = SessionContext.userAttribute("lastName") as? String
-				self.emailAddress = SessionContext.userAttribute("emailAddress") as? String
+                self.firstName = SessionContext.userAttribute(key: "firstName") as? String
+                self.middleName = SessionContext.userAttribute(key: "middleName") as? String
+                self.lastName = SessionContext.userAttribute(key: "lastName") as? String
+                self.emailAddress = SessionContext.userAttribute(key: "emailAddress") as? String
 				self.password = SessionContext.currentBasicPassword
-				self.screenName = SessionContext.userAttribute("screenName") as? String
-				self.jobTitle = SessionContext.userAttribute("jobTitle") as? String
+                self.screenName = SessionContext.userAttribute(key: "screenName") as? String
+                self.jobTitle = SessionContext.userAttribute(key: "jobTitle") as? String
 			}
 			else {
 				key = "signup-button"
@@ -138,7 +138,7 @@ public class SignUpView_default: BaseScreenletView, SignUpViewModel {
 			}
 
 			self.signUpButton?.replaceAttributedTitle(
-					LocalizedString("default", key: key, obj: self),
+                title: LocalizedString(tableName: "default", key: key, obj: self),
 					forState: .Normal)
 
 			self.signUpButton?.restorationIdentifier = actionName
@@ -168,10 +168,10 @@ public class SignUpView_default: BaseScreenletView, SignUpViewModel {
 	//MARK: UITextFieldDelegate
 
 	public func textFieldDidBeginEditing(textField: UITextField!) {
-		emailAddressBackground?.highlighted = (textField == emailAddressField)
-		passwordBackground?.highlighted = (textField == passwordField)
-		firstNameBackground?.highlighted = (textField == firstNameField)
-		lastNameBackground?.highlighted = (textField == lastNameField)
+        emailAddressBackground?.isHighlighted = (textField == emailAddressField)
+        passwordBackground?.isHighlighted = (textField == passwordField)
+        firstNameBackground?.isHighlighted = (textField == firstNameField)
+        lastNameBackground?.isHighlighted = (textField == lastNameField)
 	}
 
 }

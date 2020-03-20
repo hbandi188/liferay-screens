@@ -90,10 +90,10 @@ public class LoginView_default: BaseScreenletView, LoginViewModel {
         passwordField?.placeholder = LocalizedString(tableName: "default", key: "password-placeholder", obj: self)
 
         loginButton?.replaceAttributedTitle(title: LocalizedString(tableName: "default", key: "signin-button", obj: self),
-				forState: .Normal)
+				forState: .normal)
 
         authorizeButton?.replaceAttributedTitle(title: LocalizedString(tableName: "default", key: "authorize-button", obj: self),
-				forState: .Normal)
+				forState: .normal)
 	}
 
 	override public func onStartInteraction() {

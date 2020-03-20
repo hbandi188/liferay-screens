@@ -15,7 +15,11 @@ import UIKit
 
 
 public class DDLFormTableView: DDLFormView,
-		UITableViewDataSource, UITableViewDelegate, KeyboardLayoutable {
+UITableViewDataSource, UITableViewDelegate, KeyboardLayoutable {
+    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        <#code#>
+    }
+    
 
 	@IBOutlet public var tableView: UITableView?
 
@@ -26,8 +30,8 @@ public class DDLFormTableView: DDLFormView,
 			}
 
 			forEachField() {
-				self.registerCustomEditor($0)
-				self.resetCellHeightForField($0)
+                self.registerCustomEditor(field: $0)
+                self.resetCellHeightForField(field: $0)
 			}
 
 			refresh()
@@ -71,12 +75,12 @@ public class DDLFormTableView: DDLFormView,
 	override public func becomeFirstResponder() -> Bool {
 		var result = false
 
-		let rowCount = tableView!.numberOfRowsInSection(0)
-		var indexPath = NSIndexPath(forRow: 0, inSection: 0)
+        let rowCount = tableView!.numberOfRows(inSection: 0)
+        var indexPath = NSIndexPath(row: 0, section: 0)
 
 		while !result && indexPath.row < rowCount {
-			if let cell = tableView!.cellForRowAtIndexPath(indexPath) {
-				if cell.canBecomeFirstResponder() {
+            if let cell = tableView!.cellForRow(at: indexPath as IndexPath) {
+                if cell.canBecomeFirstResponder {
 					result = cell.becomeFirstResponder()
 				}
 			}
@@ -90,7 +94,7 @@ public class DDLFormTableView: DDLFormView,
 	}
 
 	override public func onShow() {
-		keyboardManager.registerObserver(self)
+        keyboardManager.registerObserver(layoutable: self)
 	}
 
 	override public func onHide() {
@@ -98,18 +102,18 @@ public class DDLFormTableView: DDLFormView,
 	}
 
 	override internal func showField(field: DDLField) {
-		if let row = getFieldIndex(field) {
-			tableView!.scrollToRowAtIndexPath(
-				NSIndexPath(forRow: row, inSection: 0),
-				atScrollPosition: .Top, animated: true)
+        if let row = getFieldIndex(field: field) {
+            tableView!.scrollToRow(
+                at: NSIndexPath(row: row, section: 0) as IndexPath,
+                at: .top, animated: true)
 		}
 	}
 
 	override internal func changeDocumentUploadStatus(field: DDLFieldDocument) {
-		if let row = getFieldIndex(field) {
-			if let cell = tableView!.cellForRowAtIndexPath(
-					NSIndexPath(forRow: row, inSection: 0)) as? DDLFieldTableCell {
-				cell.changeDocumentUploadStatus(field)
+        if let row = getFieldIndex(field: field) {
+            if let cell = tableView!.cellForRow(
+                at: NSIndexPath(row: row, section: 0) as IndexPath) as? DDLFieldTableCell {
+                cell.changeDocumentUploadStatus(field: field)
 			}
 		}
 	}
@@ -120,14 +124,14 @@ public class DDLFormTableView: DDLFormView,
 	public func layoutWhenKeyboardShown(keyboardHeight: CGFloat,
 			animation:(time: NSNumber, curve: NSNumber)) {
 
-		let cell = DDLFieldTableCell.viewAsFieldCell(firstCellResponder as? UIView)
+        let cell = DDLFieldTableCell.viewAsFieldCell(view: firstCellResponder as? UIView)
 
 		var scrollDone = false
 		let scrollClosure = { (completedAnimation: Bool) -> Void in
 			if let cellValue = cell {
 				if !cellValue.isFullyVisible {
-					cellValue.tableView!.scrollToRowAtIndexPath(cellValue.indexPath!,
-							atScrollPosition: .Middle,
+                    cellValue.tableView!.scrollToRow(at: cellValue.indexPath! as IndexPath,
+                                                     at: .middle,
 							animated: true)
 				}
 			}
@@ -147,14 +151,14 @@ public class DDLFormTableView: DDLFormView,
 				// Height used by UIPickerView is 216, when the standard keyboard have 253
 				keyboardHeight = 253
 			}
-			else if textInput.autocorrectionType == UITextAutocorrectionType.Default ||
-				textInput.autocorrectionType == UITextAutocorrectionType.Yes {
+            else if textInput.autocorrectionType == UITextAutocorrectionType.default ||
+                textInput.autocorrectionType == UITextAutocorrectionType.yes {
 
 				keyboardHeight += KeyboardManager.defaultAutocorrectionBarHeight
 			}
 
-			let absoluteFrame = adjustRectForCurrentOrientation(convertRect(frame, toView: window!))
-			let screenHeight = adjustRectForCurrentOrientation(UIScreen.mainScreen().bounds).height
+            let absoluteFrame = adjustRectForCurrentOrientation(rect: convert(frame, to: window!))
+            let screenHeight = adjustRectForCurrentOrientation(rect: UIScreen.main.bounds).height
 
 			if (absoluteFrame.origin.y + absoluteFrame.size.height >
 					screenHeight - keyboardHeight) || originalFrame != nil {
@@ -168,9 +172,9 @@ public class DDLFormTableView: DDLFormView,
 
 					scrollDone = true
 
-					UIView.animateWithDuration(animation.time.doubleValue,
+                    UIView.animate(withDuration: animation.time.doubleValue,
 							delay: 0,
-							options: UIViewAnimationOptions(rawValue: animation.curve.unsignedLongValue),
+                            options: UIView.AnimationOptions(rawValue: animation.curve.unsignedLongValue),
 							animations: {
 								self.frame = CGRectMake(
 										self.frame.origin.x,
@@ -198,7 +202,7 @@ public class DDLFormTableView: DDLFormView,
 
 	//MARK: UITableViewDataSource
 
-	public func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 		if isRecordEmpty {
 			return 0
 		}
@@ -214,18 +218,18 @@ public class DDLFormTableView: DDLFormView,
 		let row = indexPath.row
 
 		if row == record!.fields.count {
-			cell = tableView.dequeueReusableCellWithIdentifier("SubmitButton")
+            cell = tableView.dequeueReusableCell(withIdentifier: "SubmitButton")
 					as? DDLFieldTableCell
 
 			cell!.formView = self
 		}
-		else if let field = getField(row) {
-			cell = tableView.dequeueReusableCellWithIdentifier(field.name)
+        else if let field = getField(index: row) {
+            cell = tableView.dequeueReusableCell(withIdentifier: field.name)
 					as? DDLFieldTableCell
 
 			if cell == nil {
-				cell = tableView.dequeueReusableCellWithIdentifier(
-						field.editorType.toCapitalizedName()) as? DDLFieldTableCell
+                cell = tableView.dequeueReusableCell(
+                    withIdentifier: field.editorType.toCapitalizedName()) as? DDLFieldTableCell
 			}
 
 			if let cellValue = cell {
@@ -248,14 +252,14 @@ public class DDLFormTableView: DDLFormView,
 
 		let row = indexPath.row
 
-		return (row == record!.fields.count) ? submitButtonHeight : cellHeightForField(getField(row)!)
+                return (row == record!.fields.count) ? submitButtonHeight : cellHeightForField(field: getField(index: row)!)
 	}
 
 
 	//MARK: Internal methods
 
 	internal func registerFieldCells() {
-		let bundles = NSBundle.allBundles(type(of: self));
+        let bundles = Bundle.allBundles(type(of: self));
 
 		for fieldEditor in DDLField.Editor.all() {
 			for bundle in bundles {
@@ -285,14 +289,14 @@ public class DDLFormTableView: DDLFormView,
 	}
 
 	internal func registerCustomEditor(field: DDLField) -> Bool {
-		let bundles = NSBundle.allBundles(type(of: self));
+        let bundles = Bundle.allBundles(currentClass: type(of: self));
 
 		for bundle in bundles {
-			if let cellView = registerEditorCellInBundle(bundle,
+            if let cellView = registerEditorCellInBundle(bundle: bundle,
 					nibName: "DDLCustomField\(field.name)TableCell",
 					cellId: field.name) {
 
-				setCellHeight(cellView.bounds.size.height, forField: field)
+                setCellHeight(height: cellView.bounds.size.height, forField: field)
 
 				return true
 			}
@@ -301,7 +305,7 @@ public class DDLFormTableView: DDLFormView,
 		return false
 	}
 
-	internal func registerEditorCellInBundle(bundle: NSBundle,
+    internal func registerEditorCellInBundle(bundle: Bundle,
 			nibName: String,
 			cellId: String)
 			-> UITableViewCell? {
@@ -309,7 +313,7 @@ public class DDLFormTableView: DDLFormView,
 		let existingNibName = { (themeName: String) -> String? in
 			let themedNibName = "\(nibName)_\(themeName)"
 
-			return bundle.pathForResource(themedNibName, ofType: "nib") != nil
+            return bundle.path(forResource: themedNibName, ofType: "nib") != nil
 						? themedNibName
 						: nil
 		}
@@ -320,9 +324,9 @@ public class DDLFormTableView: DDLFormView,
 		if let themedNibNameValue = themedNibName {
 			let nib = UINib(nibName: themedNibNameValue, bundle: bundle)
 
-			tableView?.registerNib(nib, forCellReuseIdentifier: cellId)
+            tableView?.register(nib, forCellReuseIdentifier: cellId)
 
-			let views = nib.instantiateWithOwner(nil, options: nil)
+            let views = nib.instantiate(withOwner: nil, options: nil)
 
 			if let cell = views.first as? UITableViewCell {
 				return cell

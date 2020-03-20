@@ -20,7 +20,7 @@ extension SyncManager {
 			attributes: [String:AnyObject])
 			-> (Signal) -> () {
 
-		let recordSynchronizer = { (signal: @escaping Signal) -> () in
+            let recordSynchronizer: ((Signal) -> ()) = { (signal: Signal) -> () in
 			let record = attributes["record"] as! DDLRecord
 
 			if record.recordId != nil {
@@ -41,7 +41,7 @@ extension SyncManager {
 			}
 		}
 
-		let documentSynchronizer = { (signal: Signal) -> () in
+                let documentSynchronizer: ((Signal) -> ()) = { (signal: Signal) -> () in
 			// Do nothing. 
 			// When the record is sync-ed the documents will be sync-ed too
 			// Notify as this entry is finished

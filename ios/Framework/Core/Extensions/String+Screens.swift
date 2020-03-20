@@ -20,9 +20,9 @@ extension String {
 			pattern: "[^a-zA-Z0-9_]+",
 			options: [])
 
-		return regex.stringByReplacingMatchesInString(self,
+        return regex.stringByReplacingMatches(in: self,
 			options: [],
-			range: NSMakeRange(0, self.characters.count),
+			range: NSMakeRange(0, self.count),
 			withTemplate: "-")
 	}
 

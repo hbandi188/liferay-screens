@@ -15,6 +15,7 @@ import Foundation
 
 
 public class DDLField: NSObject, NSCoding {
+    
 
 	public var onPostValidation: ((Bool) -> Void)?
 	public var lastValidationResult: Bool?
@@ -138,19 +139,19 @@ public class DDLField: NSObject, NSCoding {
 		currentValue = convert(fromString: currentValueString)
 	}
 
-	public func encodeWithCoder(aCoder: NSCoder) {
-        aCoder.encode(currentLocale, forKey:"currentLocale")
-        aCoder.encode(dataType.rawValue, forKey:"dataType")
-        aCoder.encode(editorType.rawValue, forKey:"editorType")
-        aCoder.encode(name, forKey:"name")
-        aCoder.encode(label, forKey:"label")
-        aCoder.encode(tip, forKey:"tip")
-        aCoder.encode(readOnly, forKey:"readOnly")
-        aCoder.encode(repeatable, forKey:"repeatable")
-        aCoder.encode(required, forKey:"required")
-        aCoder.encode(showLabel, forKey:"showLabel")
-        aCoder.encode(convert(fromCurrentValue: currentValue), forKey:"currentValue")
-        aCoder.encode(convert(fromCurrentValue: predefinedValue), forKey:"predefinedValue")
+    public func encode(with coder: NSCoder) {
+        coder.encode(currentLocale, forKey:"currentLocale")
+        coder.encode(dataType.rawValue, forKey:"dataType")
+        coder.encode(editorType.rawValue, forKey:"editorType")
+        coder.encode(name, forKey:"name")
+        coder.encode(label, forKey:"label")
+        coder.encode(tip, forKey:"tip")
+        coder.encode(readOnly, forKey:"readOnly")
+        coder.encode(repeatable, forKey:"repeatable")
+        coder.encode(required, forKey:"required")
+        coder.encode(showLabel, forKey:"showLabel")
+        coder.encode(convert(fromCurrentValue: currentValue), forKey:"currentValue")
+        coder.encode(convert(fromCurrentValue: predefinedValue), forKey:"predefinedValue")
 	}
 
 	public func validate() -> Bool {

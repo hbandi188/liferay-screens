@@ -34,7 +34,7 @@ public class DDLSubmitButtonTableCell_default: DDLFieldTableCell {
 
 		submitButton?.replaceAttributedTitle(
             title: LocalizedString(tableName: "default", key: "ddlform-submit-button", obj: self),
-				forState: .Normal)
+				forState: .normal)
 	}
 
     override public var canBecomeFirstResponder: Bool {

@@ -103,7 +103,7 @@ public class DDLFieldDocument : DDLField {
 		case UploadStatus.Uploading(0, 0).hashValue:
             let n1 = aDecoder.decodeObject(forKey: "uploadStatusUploading1") as! NSNumber
             let n2 = aDecoder.decodeObject(forKey: "uploadStatusUploading2") as! NSNumber
-            uploadStatus = .Uploading(n1.uint64Value, n2.unsignedLongLongValue)
+            uploadStatus = .Uploading(n1.uint64Value, n2.uint64Value)
 
 		default:
 			()
@@ -112,19 +112,19 @@ public class DDLFieldDocument : DDLField {
 		super.init(coder: aDecoder)
 	}
 
-	public override func encodeWithCoder(aCoder: NSCoder) {
-        super.encodeWithCoder(aCoder: aCoder)
+    public override func encode(with coder: NSCoder) {
+        super.encode(with: coder)
 
-        aCoder.encode(uploadStatus.hashValue, forKey: "uploadStatusHash")
+        coder.encode(uploadStatus.hashValue, forKey: "uploadStatusHash")
 
 		switch uploadStatus {
 		case .Uploaded(let attributes):
-            aCoder.encode(attributes, forKey: "uploadStatusUploadedAttributes")
+            coder.encode(attributes, forKey: "uploadStatusUploadedAttributes")
 		case .Failed(let error):
-            aCoder.encode(error, forKey: "uploadStatusFailedError")
+            coder.encode(error, forKey: "uploadStatusFailedError")
 		case .Uploading(let n1, let n2):
-            aCoder.encode(NSNumber(value: n1), forKey: "uploadStatusUploading1")
-            aCoder.encode(NSNumber(value: n2), forKey: "uploadStatusUploading2")
+            coder.encode(NSNumber(value: n1), forKey: "uploadStatusUploading1")
+            coder.encode(NSNumber(value: n2), forKey: "uploadStatusUploading2")
 		case .Pending:
 			()
 		}
@@ -135,11 +135,11 @@ public class DDLFieldDocument : DDLField {
 		var result:AnyObject?
 
 		if let valueString = value {
-            let data = valueString.data(usingEncoding: String.Encoding.utf8,
+            let data = valueString.data(using: String.Encoding.utf8,
 				allowLossyConversion: false)
 
-            let jsonObject: AnyObject? = try? JSONSerialization.JSONObjectWithData(data!,
-				options: NSJSONReadingOptions(rawValue: 0))
+            let jsonObject: Any? = try? JSONSerialization.jsonObject(with: data!,
+                                                                                   options: JSONSerialization.ReadingOptions(rawValue: 0))
 
 			if let jsonDict = jsonObject as? [String:AnyObject] {
 				uploadStatus = .Uploaded(jsonDict)
@@ -169,11 +169,11 @@ public class DDLFieldDocument : DDLField {
 						"\"version\":\"\(version)\"}"
 			}
 			else {
-                let data = try? JSONSerialization.dataWithJSONObject(json,
+                let data = try? JSONSerialization.data(withJSONObject: json,
 					options: [])
 
 				if let data = data {
-					return NSString(data: data, encoding: NSUTF8StringEncoding) as? String
+                    return NSString(data: data, encoding: String.Encoding.utf8.rawValue) as String?
 				}
 			}
 
@@ -222,16 +222,16 @@ public class DDLFieldDocument : DDLField {
 		case let image as UIImage:
             if let imageData = image.pngData() {
                 size = Int64(imageData.count)
-				result = NSInputStream(data: imageData)
+                result = InputStream(data: imageData)
 			}
 
 		case let videoURL as NSURL:
-            let attributes = try? FileManager.defaultManager().attributesOfItemAtPath(
-					videoURL.path!)
-			if let sizeValue = attributes?[NSFileSize] as? NSNumber {
-				size = sizeValue.longLongValue
+            let attributes = try? FileManager.default.attributesOfItem(
+                atPath: videoURL.path!)
+            if let sizeValue = attributes?[FileAttributeKey.size] as? NSNumber {
+                size = sizeValue.int64Value
 			}
-			result = NSInputStream(URL: videoURL)
+            result = InputStream(url: videoURL as URL)
 
 		default: ()
 		}

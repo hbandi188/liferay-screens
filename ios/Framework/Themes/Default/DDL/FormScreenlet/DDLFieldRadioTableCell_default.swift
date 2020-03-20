@@ -115,14 +115,14 @@ public class DDLFieldRadioTableCell_default: DDLFieldTableCell {
 		radioGroup!.identifier = field.name
 		radioGroup!.marginBetweenItems = Int(DDLFieldRadioButtonMargin)
 		radioGroup!.create()
-		radioGroup!.position = CGPoint(25.0,
-				DDLFieldRadioGroupMarginTop + label!.frame.origin.y + label!.frame.size.height)
+        radioGroup!.position = CGPoint(x: 25.0,
+                                       y: DDLFieldRadioGroupMarginTop + label!.frame.origin.y + label!.frame.size.height)
 
 		addSubview(radioGroup!)
 
-        NotificationCenter.defaultCenter.addObserver(self,
-				selector: "radioButtonSelected:",
-				name: SELECTED_RADIO_BUTTON_CHANGED,
+        NotificationCenter.default.addObserver(self,
+                                               selector: Selector("radioButtonSelected:"),
+                name: Notification.Name(SELECTED_RADIO_BUTTON_CHANGED),
 				object: radioGroup)
 	}
 
@@ -158,8 +158,8 @@ public class DDLFieldRadioTableCell_default: DDLFieldTableCell {
 
 	public func clearObserver() {
 		if radioGroup != nil {
-            NotificationCenter.defaultCenter.removeObserver(self,
-					name: SELECTED_RADIO_BUTTON_CHANGED,
+            NotificationCenter.default.removeObserver(self,
+                                                            name: Notification.Name(SELECTED_RADIO_BUTTON_CHANGED),
 					object: radioGroup!)
 		}
 	}
